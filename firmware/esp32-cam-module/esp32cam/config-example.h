@@ -9,3 +9,6 @@
 #define MQTT_USERNAME "your_mqtt_username"
 #define MQTT_PASSWORD "your_mqtt_password"
 #define MQTT_PORT     8883
+
+#define SUPABASE_URL      "https://yourproject.supabase.co"
+#define SUPABASE_ANON_KEY "your-anon-key"
