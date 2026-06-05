@@ -94,6 +94,7 @@ void connectToWiFi() {
   delay(1500);
 
   device_id  = WiFi.macAddress();
+  device_id.replace(":", "");
   base_topic = "devices/" + device_id + "/";
 
   lcdStatus("Syncing time...");
