@@ -1,5 +1,6 @@
 { 
-    "samplingInterval": <unsigned long>, 
+    "samplingInterval": <unsigned long>,
+    "showsensordata": <bool>, 
     "flag": <bool>, 
     "price": <float> 
 }
