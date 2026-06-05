@@ -3,6 +3,7 @@
 #include <PubSubClient.h>
 #include <WiFiClientSecure.h>
 #include <ArduinoJson.h>
+#include <Preferences.h>
 #include <time.h>
 #include "esp_camera.h"
 
@@ -26,7 +27,7 @@
 
 // NTP settings
 const char* ntpServer          = "pool.ntp.org";
-const long  gmtOffset_sec      = -3 * 3600;  // UTC-3 (Brazil)
+const long  gmtOffset_sec      = -3 * 3600;
 const int   daylightOffset_sec = 0;
 
 unsigned long lastCapture      = 0;
@@ -38,18 +39,40 @@ String base_topic;
 WiFiClientSecure esp_client;
 WiFiClientSecure http_client;
 PubSubClient     mqtt_client(esp_client);
+Preferences      prefs;
 
 // ---------- declarations ----------
 void connectToWiFi();
 void connectToMQTT();
 void mqttCallback(char *topic, byte *payload, unsigned int length);
 String getTimestamp();
+String getFilenameTimestamp();
 bool uploadToSupabase(uint8_t *buf, size_t len, String path);
 void captureAndUpload();
+void loadConfig();
+void saveConfig();
 
 // ----------------------------------
+void loadConfig() {
+  prefs.begin("config", true);  // read-only
+  samplingInterval = prefs.getULong("samplingInterval", 30000);
+  prefs.end();
+  Serial.println("Config loaded from NVS");
+}
+
+void saveConfig() {
+  prefs.begin("config", false);  // read-write
+  prefs.putULong("samplingInterval", samplingInterval);
+  prefs.end();
+  Serial.println("Config saved to NVS");
+}
+
 void setup() {
   Serial.begin(115200);
+  delay(2000);
+  Serial.println("Booting...");
+
+  loadConfig();
 
   // Camera config
   camera_config_t config;
@@ -73,16 +96,16 @@ void setup() {
   config.pin_reset    = RESET_GPIO_NUM;
   config.xclk_freq_hz = 20000000;
   config.pixel_format = PIXFORMAT_JPEG;
-  config.frame_size   = FRAMESIZE_UXGA;  // 1600x1200
-  config.jpeg_quality = 10;              // 0-63, lower = better quality
+  config.frame_size   = FRAMESIZE_UXGA;
+  config.jpeg_quality = 10;
   config.fb_count     = 1;
-  config.fb_location  = CAMERA_FB_IN_PSRAM;  // use PSRAM instead of internal RAM
+  config.fb_location  = CAMERA_FB_IN_PSRAM;
 
   esp_err_t err = esp_camera_init(&config);
-if (err != ESP_OK) {
-  Serial.printf("Camera init failed: 0x%x\n", err);
-  while (true) delay(1000); // halt instead of returning
-}
+  if (err != ESP_OK) {
+    Serial.printf("Camera init failed: 0x%x\n", err);
+    while (true) delay(1000);
+  }
   Serial.println("Camera ready");
 
   connectToWiFi();
@@ -100,7 +123,6 @@ if (err != ESP_OK) {
 
 void connectToWiFi() {
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-  Serial.println("WiFi status: " + String(WiFi.status()));
   Serial.print("Connecting to WiFi");
   while (WiFi.status() != WL_CONNECTED) {
     delay(300);
@@ -130,7 +152,6 @@ String getTimestamp() {
   return String(buf);
 }
 
-// Returns a flat timestamp safe for use in a filename: "20240515_143207"
 String getFilenameTimestamp() {
   struct tm timeinfo;
   if (!getLocalTime(&timeinfo)) return "no-time";
@@ -178,17 +199,17 @@ void mqttCallback(char *topic, byte *payload, unsigned int length) {
   }
 
   if (String(topic) == (base_topic + "commands")) {
-    if (doc.containsKey("samplingInterval")) samplingInterval = doc["samplingInterval"];
+    bool changed = false;
+    if (doc.containsKey("samplingInterval")) { samplingInterval = doc["samplingInterval"]; changed = true; }
+    if (changed) saveConfig();
   }
 }
 
-// Uploads a JPEG buffer to Supabase storage, returns true on success
 bool uploadToSupabase(uint8_t *buf, size_t len, String storagePath) {
   String host = String(SUPABASE_URL);
   host.replace("https://", "");
 
   String url = "/storage/v1/object/captured_images/" + storagePath;
-
   Serial.println("Uploading to Supabase: " + url);
 
   if (!http_client.connect(host.c_str(), 443)) {
@@ -205,7 +226,6 @@ bool uploadToSupabase(uint8_t *buf, size_t len, String storagePath) {
   http_client.println();
   http_client.write(buf, len);
 
-  // Read response
   String response = "";
   unsigned long timeout = millis();
   while (http_client.connected() && millis() - timeout < 10000) {
@@ -215,7 +235,7 @@ bool uploadToSupabase(uint8_t *buf, size_t len, String storagePath) {
   }
   http_client.stop();
 
-  Serial.println("Supabase response: " + response.substring(0, 100));
+  Serial.println("Supabase response: " + response.substring(0, 200));
   return response.indexOf("200") > 0 || response.indexOf("201") > 0;
 }
 
@@ -238,7 +258,6 @@ void captureAndUpload() {
     return;
   }
 
-  // Publish MQTT notification
   StaticJsonDocument<300> doc;
   doc["device_id"]      = device_id;
   doc["time"]           = timestamp;

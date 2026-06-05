@@ -5,6 +5,7 @@
 #include <PubSubClient.h>
 #include <WiFiClientSecure.h>
 #include <ArduinoJson.h>
+#include <Preferences.h>
 #include <time.h>
 
 #define DHT11PIN 33
@@ -19,7 +20,7 @@
 
 // NTP settings
 const char* ntpServer          = "pool.ntp.org";
-const long  gmtOffset_sec      = -3 * 3600;  // UTC-3 (Brazil)
+const long  gmtOffset_sec      = -3 * 3600;
 const int   daylightOffset_sec = 0;
 
 unsigned long lastPublish      = 0;
@@ -36,6 +37,7 @@ WiFiClientSecure esp_client;
 PubSubClient     mqtt_client(esp_client);
 LiquidCrystal    lcd(RS, E, D4, D5, D6, D7);
 DHT              dht(DHT11PIN, DHTTYPE);
+Preferences      prefs;
 
 // ---------- declarations ----------
 void connectToWiFi();
@@ -43,8 +45,30 @@ void connectToMQTT();
 void mqttCallback(char *topic, byte *payload, unsigned int length);
 String getTimestamp();
 void lcdStatus(String line1, String line2 = "");
+void loadConfig();
+void saveConfig();
 
 // ----------------------------------
+void loadConfig() {
+  prefs.begin("config", true);  // read-only
+  samplingInterval = prefs.getULong("samplingInterval", 2000);
+  price            = prefs.getFloat("price", 0);
+  flag             = prefs.getBool("flag", false);
+  showsensordata   = prefs.getBool("showsensordata", false);
+  prefs.end();
+  Serial.println("Config loaded from NVS");
+}
+
+void saveConfig() {
+  prefs.begin("config", false);  // read-write
+  prefs.putULong("samplingInterval", samplingInterval);
+  prefs.putFloat("price", price);
+  prefs.putBool("flag", flag);
+  prefs.putBool("showsensordata", showsensordata);
+  prefs.end();
+  Serial.println("Config saved to NVS");
+}
+
 void lcdStatus(String line1, String line2) {
   lcd.clear();
   lcd.setCursor(0, 0);
@@ -62,6 +86,8 @@ void setup() {
   lcd.begin(16, 2);
   Serial.begin(115200);
   dht.begin();
+
+  loadConfig();
 
   connectToWiFi();
 
@@ -169,6 +195,7 @@ void mqttCallback(char *topic, byte *payload, unsigned int length) {
   }
 
   if (String(topic) == (base_topic + "commands")) {
+    bool changed = false;
     if (doc.containsKey("price")) {
       price = doc["price"];
       lcd.setCursor(2, 0);
@@ -176,17 +203,18 @@ void mqttCallback(char *topic, byte *payload, unsigned int length) {
       dtostrf(price, 1, 2, buf);
       lcd.print(buf);
       lcd.print("     ");
+      changed = true;
     }
-    if (doc.containsKey("flag"))             flag             = doc["flag"];
-    if (doc.containsKey("samplingInterval")) samplingInterval = doc["samplingInterval"];
-    if (doc.containsKey("showsensordata"))   showsensordata   = doc["showsensordata"];
+    if (doc.containsKey("flag"))             { flag             = doc["flag"];             changed = true; }
+    if (doc.containsKey("samplingInterval")) { samplingInterval = doc["samplingInterval"]; changed = true; }
+    if (doc.containsKey("showsensordata"))   { showsensordata   = doc["showsensordata"];   changed = true; }
+    if (changed) saveConfig();
   }
 }
 
 void loop() {
   if (!mqtt_client.connected()) {
     connectToMQTT();
-    // Restore display after reconnect
     lcd.clear();
     lcd.setCursor(0, 0);
     lcd.print("R$ ");
