@@ -1,3 +1,5 @@
+// add esp32cam credentials and rename file to "config.h"
+
 #pragma once
 
 #define WIFI_SSID     "your_wifi_name"
