@@ -1,0 +1,5 @@
+{ 
+    "samplingInterval": <unsigned long>, 
+    "flag": <bool>, 
+    "price": <float> 
+}

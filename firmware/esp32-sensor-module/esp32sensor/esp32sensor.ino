@@ -42,15 +42,24 @@ void connectToWiFi();
 void connectToMQTT();
 void mqttCallback(char *topic, byte *payload, unsigned int length);
 String getTimestamp();
+void lcdStatus(String line1, String line2 = "");
 
 // ----------------------------------
+void lcdStatus(String line1, String line2) {
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print(line1.substring(0, 16));
+  if (line2.length() > 0) {
+    lcd.setCursor(0, 1);
+    lcd.print(line2.substring(0, 16));
+  }
+}
+
 void setup() {
   pinMode(RLED, OUTPUT);
   pinMode(LED_BUILTIN, OUTPUT);
 
   lcd.begin(16, 2);
-  lcd.print("R$ ");
-
   Serial.begin(115200);
   dht.begin();
 
@@ -62,9 +71,15 @@ void setup() {
   mqtt_client.setKeepAlive(60);
   mqtt_client.setCallback(mqttCallback);
   connectToMQTT();
+
+  // Boot complete — show default display
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("R$ ");
 }
 
 void connectToWiFi() {
+  lcdStatus("Connecting to", "WiFi...");
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   Serial.print("Connecting to WiFi");
   while (WiFi.status() != WL_CONNECTED) {
@@ -75,10 +90,13 @@ void connectToWiFi() {
     delay(200);
   }
   Serial.println("\nConnected to WiFi");
+  lcdStatus("WiFi connected!", WiFi.localIP().toString());
+  delay(1500);
 
   device_id  = WiFi.macAddress();
   base_topic = "devices/" + device_id + "/";
 
+  lcdStatus("Syncing time...");
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
   Serial.println("Waiting for NTP time sync...");
   struct tm timeinfo;
@@ -90,6 +108,8 @@ void connectToWiFi() {
     delay(200);
   }
   Serial.println("\nTime synced!");
+  lcdStatus("Time synced!");
+  delay(1000);
 }
 
 String getTimestamp() {
@@ -103,6 +123,7 @@ String getTimestamp() {
 void connectToMQTT() {
   while (!mqtt_client.connected()) {
     String client_id = "esp32-client-" + String(WiFi.macAddress());
+    lcdStatus("Connecting to", "MQTT broker...");
     Serial.printf("Connecting to MQTT Broker as %s...\n", client_id.c_str());
     if (mqtt_client.connect(client_id.c_str(), MQTT_USERNAME, MQTT_PASSWORD)) {
       Serial.println("Connected to MQTT broker");
@@ -111,11 +132,15 @@ void connectToMQTT() {
 
       String msg = "<<<<<<<<< ESP32 (" + device_id + ") ONLINE >>>>>>>>";
       mqtt_client.publish("general", msg.c_str());
+
+      lcdStatus("MQTT connected!");
+      delay(1500);
     } else {
       digitalWrite(LED_BUILTIN, HIGH);
       Serial.print("Failed to connect to MQTT broker, rc=");
       Serial.print(mqtt_client.state());
       Serial.println(" Retrying in 5 seconds.");
+      lcdStatus("MQTT failed!", "rc=" + String(mqtt_client.state()));
       delay(2500);
       digitalWrite(LED_BUILTIN, LOW);
       delay(2500);
@@ -160,6 +185,13 @@ void mqttCallback(char *topic, byte *payload, unsigned int length) {
 void loop() {
   if (!mqtt_client.connected()) {
     connectToMQTT();
+    // Restore display after reconnect
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("R$ ");
+    char buf[10];
+    dtostrf(price, 1, 2, buf);
+    lcd.print(buf);
   }
   mqtt_client.loop();
 
