@@ -1,5 +1,3 @@
-/* template para criar o arquivo "config.h" para o esp32sensor*/
-
 #pragma once
 
 #define WIFI_SSID     "your_wifi_name"
