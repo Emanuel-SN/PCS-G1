@@ -76,12 +76,13 @@ void setup() {
   config.frame_size   = FRAMESIZE_UXGA;  // 1600x1200
   config.jpeg_quality = 10;              // 0-63, lower = better quality
   config.fb_count     = 1;
+  config.fb_location  = CAMERA_FB_IN_PSRAM;  // use PSRAM instead of internal RAM
 
   esp_err_t err = esp_camera_init(&config);
-  if (err != ESP_OK) {
-    Serial.printf("Camera init failed: 0x%x\n", err);
-    return;
-  }
+if (err != ESP_OK) {
+  Serial.printf("Camera init failed: 0x%x\n", err);
+  while (true) delay(1000); // halt instead of returning
+}
   Serial.println("Camera ready");
 
   connectToWiFi();
@@ -99,6 +100,7 @@ void setup() {
 
 void connectToWiFi() {
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  Serial.println("WiFi status: " + String(WiFi.status()));
   Serial.print("Connecting to WiFi");
   while (WiFi.status() != WL_CONNECTED) {
     delay(300);
