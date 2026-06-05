@@ -208,7 +208,7 @@ void loop() {
     }
 
     String timestamp = getTimestamp();
-    String msg = "{\"time\":\"" + timestamp + "\",\"temperature\":" + String(temperature) +
+    String msg = "{\"device_id\":\"" + device_id + "\",\"time\":\"" + timestamp + "\",\"temperature\":" + String(temperature) +
                  ",\"humidity\":" + String(humidity) + "}";
     mqtt_client.publish((base_topic + "sensordata").c_str(), msg.c_str());
 
