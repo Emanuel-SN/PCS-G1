@@ -18,15 +18,15 @@
 #define RLED 32
 
 // NTP settings
-const char* ntpServer         = "pool.ntp.org";
-const long  gmtOffset_sec     = -3 * 3600;  // UTC-3 (Brazil)
+const char* ntpServer          = "pool.ntp.org";
+const long  gmtOffset_sec      = -3 * 3600;  // UTC-3 (Brazil)
 const int   daylightOffset_sec = 0;
 
-unsigned long lastPublish    = 0;
+unsigned long lastPublish      = 0;
 unsigned long samplingInterval = 2000;
 
-float price        = 0;
-bool  flag         = false;
+float price          = 0;
+bool  flag           = false;
 bool  showsensordata = false;
 
 String device_id;
@@ -106,10 +106,7 @@ void connectToMQTT() {
     Serial.printf("Connecting to MQTT Broker as %s...\n", client_id.c_str());
     if (mqtt_client.connect(client_id.c_str(), MQTT_USERNAME, MQTT_PASSWORD)) {
       Serial.println("Connected to MQTT broker");
-      mqtt_client.subscribe((base_topic + "config").c_str());
-      mqtt_client.subscribe((base_topic + "flag").c_str());
-      mqtt_client.subscribe((base_topic + "price").c_str());
-      mqtt_client.subscribe((base_topic + "sensordata").c_str());
+      mqtt_client.subscribe((base_topic + "commands").c_str());
       mqtt_client.subscribe("general");
 
       String msg = "<<<<<<<<< ESP32 (" + device_id + ") ONLINE >>>>>>>>";
@@ -145,22 +142,18 @@ void mqttCallback(char *topic, byte *payload, unsigned int length) {
     return;
   }
 
-  if (String(topic) == (base_topic + "price")) {
-    price = doc["price"];
-    lcd.setCursor(2, 0);
-    char buf[10];
-    dtostrf(price, 1, 2, buf);
-    lcd.print(buf);
-    lcd.print("     ");
-  }
-
-  if (String(topic) == (base_topic + "config")) {
-    samplingInterval = doc["samplingInterval"];
-    showsensordata   = doc["showsensordata"];
-  }
-
-  if (String(topic) == (base_topic + "flag")) {
-    flag = doc["flag"];
+  if (String(topic) == (base_topic + "commands")) {
+    if (doc.containsKey("price")) {
+      price = doc["price"];
+      lcd.setCursor(2, 0);
+      char buf[10];
+      dtostrf(price, 1, 2, buf);
+      lcd.print(buf);
+      lcd.print("     ");
+    }
+    if (doc.containsKey("flag"))             flag             = doc["flag"];
+    if (doc.containsKey("samplingInterval")) samplingInterval = doc["samplingInterval"];
+    if (doc.containsKey("showsensordata"))   showsensordata   = doc["showsensordata"];
   }
 }
 
