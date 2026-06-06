@@ -45,7 +45,7 @@ model.eval()
 log.info("Model loaded")
 
 # Expected class labels — verify these match the model's config.id2label
-LABEL_UNRIPE   = "unripe"
+LABEL_UNRIPE   = "underripe"
 LABEL_RIPE     = "ripe"
 LABEL_OVERRIPE = "overripe"
 
@@ -121,7 +121,7 @@ def handle_captured_image(payload: dict):
     freshness = compute_freshness(scores)
 
     # Insert into CV_analysis
-    supabase.table("CV_analysis").insert({
+    supabase.table("cv_analysis").insert({
         "cam_device_id":  cam_device_id,
         "group_id":       group_id,
         "store_id":       store_id,
