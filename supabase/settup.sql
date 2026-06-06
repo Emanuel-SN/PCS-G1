@@ -30,14 +30,16 @@ CREATE TABLE product_info (
 
 -- Sensor devices (no group_id yet, groups references devices)
 CREATE TABLE sensor_devices (
-  sensor_device_id TEXT PRIMARY KEY,  -- MAC address string
+  sensor_device_id TEXT PRIMARY KEY,
+  user_id          UUID REFERENCES users(user_id) ON DELETE SET NULL,
   store_id         UUID REFERENCES stores(store_id) ON DELETE SET NULL,
   led_flag         BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 -- Cam devices
 CREATE TABLE cam_devices (
-  cam_device_id TEXT PRIMARY KEY,  -- MAC address string
+  cam_device_id TEXT PRIMARY KEY,
+  user_id       UUID REFERENCES users(user_id) ON DELETE SET NULL,
   store_id      UUID REFERENCES stores(store_id) ON DELETE SET NULL
 );
 
