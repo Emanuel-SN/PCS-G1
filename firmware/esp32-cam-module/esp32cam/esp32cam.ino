@@ -148,7 +148,7 @@ String getTimestamp() {
   struct tm timeinfo;
   if (!getLocalTime(&timeinfo)) return "no-time";
   char buf[30];
-  strftime(buf, sizeof(buf), "%Y/%m/%d/%Hh/%Mmin/%Ss", &timeinfo);
+  strftime(buf, sizeof(buf), "%Y-%m-%dT%H:%M:%SZ", &timeinfo);
   return String(buf);
 }
 
