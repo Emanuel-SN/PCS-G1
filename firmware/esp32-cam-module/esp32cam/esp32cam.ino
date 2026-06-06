@@ -206,6 +206,8 @@ void mqttCallback(char *topic, byte *payload, unsigned int length) {
 }
 
 bool uploadToSupabase(uint8_t *buf, size_t len, String storagePath) {
+  http_client.stop();
+
   String host = String(SUPABASE_URL);
   host.replace("https://", "");
 
