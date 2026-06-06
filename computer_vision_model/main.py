@@ -10,6 +10,9 @@ import requests
 from supabase import create_client, Client
 from dotenv import load_dotenv
 from flask import Flask
+from transformers import AutoImageProcessor, AutoModelForImageClassification
+from PIL import Image
+import torch
 import os
 
 # ----------------------------------------------------------------
@@ -29,10 +32,19 @@ MQTT_PASSWORD = os.getenv("MQTT_PASSWORD")
 SUPABASE_URL  = os.getenv("SUPABASE_URL")
 SUPABASE_KEY  = os.getenv("SUPABASE_KEY")
 
-HF_API_KEY    = os.getenv("HF_API_KEY")
-HF_MODEL_ID   = "ITCleo/banana-maturity-mobile-vit-small"
-HF_API_URL    = f"https://api-inference.huggingface.co/models/{HF_MODEL_ID}"
+MODEL_ID = "ITCleo/banana-maturity-mobile-vit-small"
 
+# ----------------------------------------------------------------
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+# ----------------------------------------------------------------
+log.info(f"Loading model {MODEL_ID}...")
+processor = AutoImageProcessor.from_pretrained(MODEL_ID)
+model     = AutoModelForImageClassification.from_pretrained(MODEL_ID)
+model.eval()
+log.info("Model loaded")
+
+# Expected class labels — verify these match the model's config.id2label
 LABEL_UNRIPE   = "unripe"
 LABEL_RIPE     = "ripe"
 LABEL_OVERRIPE = "overripe"
@@ -42,9 +54,6 @@ FRESHNESS_WEIGHTS = {
     LABEL_RIPE:     1.0,
     LABEL_OVERRIPE: 0.1,
 }
-
-# ----------------------------------------------------------------
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # ----------------------------------------------------------------
 app = Flask(__name__)
@@ -63,32 +72,24 @@ def compute_freshness(scores: dict) -> float:
     return sum(FRESHNESS_WEIGHTS.get(label, 0) * prob for label, prob in scores.items())
 
 
-def download_image(storage_bucket: str, storage_path: str) -> bytes:
-    """Download raw image bytes from Supabase public storage."""
+def download_image(storage_bucket: str, storage_path: str) -> Image.Image:
+    """Download image from Supabase public storage."""
     url = f"{SUPABASE_URL}/storage/v1/object/public/{storage_bucket}/{storage_path}"
     log.info(f"Downloading image from {url}")
     response = requests.get(url, timeout=15)
     response.raise_for_status()
-    return response.content
+    return Image.open(BytesIO(response.content)).convert("RGB")
 
 
-def run_inference(image_bytes: bytes) -> dict:
-    """Send image to HuggingFace Inference API and return per-class probabilities."""
-    headers = {"Authorization": f"Bearer {HF_API_KEY}"}
-    response = requests.post(HF_API_URL, headers=headers, data=image_bytes, timeout=30)
+def run_inference(image: Image.Image) -> dict:
+    """Run the banana maturity model and return per-class probabilities."""
+    inputs  = processor(images=image, return_tensors="pt")
+    with torch.no_grad():
+        logits = model(**inputs).logits
+    probs = torch.softmax(logits, dim=-1)[0]
 
-    if response.status_code == 503:
-        # Model is loading on HF side, can happen on cold start
-        log.warning("HuggingFace model is loading, retrying in 10s...")
-        import time
-        time.sleep(10)
-        response = requests.post(HF_API_URL, headers=headers, data=image_bytes, timeout=30)
-
-    response.raise_for_status()
-    results = response.json()
-
-    # HF returns [{"label": "ripe", "score": 0.95}, ...]
-    scores = {item["label"].lower(): item["score"] for item in results}
+    id2label = model.config.id2label
+    scores = {id2label[i].lower(): float(probs[i]) for i in range(len(probs))}
     log.info(f"Inference scores: {scores}")
     return scores
 
@@ -109,10 +110,10 @@ def handle_captured_image(payload: dict):
     except Exception as e:
         log.warning(f"Could not find context for cam {cam_device_id}: {e}")
 
-    # Download image and run inference
+    # Download and run inference
     try:
-        image_bytes = download_image(storage_bucket, storage_path)
-        scores      = run_inference(image_bytes)
+        image  = download_image(storage_bucket, storage_path)
+        scores = run_inference(image)
     except Exception as e:
         log.error(f"Inference failed for {storage_path}: {e}")
         return
