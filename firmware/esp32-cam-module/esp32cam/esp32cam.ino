@@ -98,8 +98,9 @@ void setup() {
   config.pixel_format = PIXFORMAT_JPEG;
   config.frame_size   = FRAMESIZE_SVGA;
   config.jpeg_quality = 10;
-  config.fb_count     = 1;
+  config.fb_count     = 2;
   config.fb_location  = CAMERA_FB_IN_PSRAM;
+  
 
   esp_err_t err = esp_camera_init(&config);
   if (err != ESP_OK) {
