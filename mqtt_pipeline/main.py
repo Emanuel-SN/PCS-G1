@@ -2,11 +2,13 @@ import json
 import logging
 import signal
 import sys
+import threading
 from datetime import datetime, timezone
 
 import paho.mqtt.client as mqtt
 from supabase import create_client, Client
 from dotenv import load_dotenv
+from flask import Flask
 import os
 
 # ----------------------------------------------------------------
@@ -28,6 +30,17 @@ SUPABASE_KEY  = os.getenv("SUPABASE_KEY")
 
 # ----------------------------------------------------------------
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+# ----------------------------------------------------------------
+app = Flask(__name__)
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
+def run_web():
+    port = int(os.getenv("PORT", 8080))
+    app.run(host="0.0.0.0", port=port)
 
 # ----------------------------------------------------------------
 def get_device_context(device_id: str, device_table: str, device_id_col: str) -> dict | None:
@@ -140,9 +153,13 @@ def on_message(client, userdata, msg):
 
 # ----------------------------------------------------------------
 def main():
+    # Start web server in background thread
+    threading.Thread(target=run_web, daemon=True).start()
+    log.info("Web server started")
+
     client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
     client.username_pw_set(MQTT_USERNAME, MQTT_PASSWORD)
-    client.tls_set()  # TLS on port 8883
+    client.tls_set()
 
     client.on_connect    = on_connect
     client.on_disconnect = on_disconnect
@@ -150,7 +167,6 @@ def main():
 
     client.connect(MQTT_BROKER, MQTT_PORT, keepalive=60)
 
-    # Graceful shutdown on SIGINT/SIGTERM
     def shutdown(sig, frame):
         log.info("Shutting down...")
         client.disconnect()
