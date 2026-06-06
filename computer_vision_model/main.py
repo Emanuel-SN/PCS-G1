@@ -32,7 +32,7 @@ MQTT_PASSWORD = os.getenv("MQTT_PASSWORD")
 SUPABASE_URL  = os.getenv("SUPABASE_URL")
 SUPABASE_KEY  = os.getenv("SUPABASE_KEY")
 
-MODEL_ID = "ITCleo/banana-maturity-mobile-vit-small"
+MODEL_ID = "TCleo/banana-maturity-mobile-vit-small"
 
 # ----------------------------------------------------------------
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)

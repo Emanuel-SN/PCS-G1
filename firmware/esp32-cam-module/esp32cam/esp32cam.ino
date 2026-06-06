@@ -255,6 +255,12 @@ void captureAndUpload() {
   bool ok = uploadToSupabase(fb->buf, fb->len, storagePath);
   esp_camera_fb_return(fb);
 
+  // Flush any stale frames from the buffer
+  camera_fb_t *flush;
+  while ((flush = esp_camera_fb_get()) != NULL) {
+    esp_camera_fb_return(flush);
+  }
+
   if (!ok) {
     Serial.println("Upload failed, skipping MQTT publish");
     return;
