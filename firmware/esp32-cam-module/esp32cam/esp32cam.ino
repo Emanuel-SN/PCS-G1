@@ -98,7 +98,7 @@ void setup() {
   config.pixel_format = PIXFORMAT_JPEG;
   config.frame_size   = FRAMESIZE_SVGA;
   config.jpeg_quality = 10;
-  config.fb_count     = 2;
+  config.fb_count     = 1;
   config.fb_location  = CAMERA_FB_IN_PSRAM;
   
 
@@ -243,40 +243,43 @@ bool uploadToSupabase(uint8_t *buf, size_t len, String storagePath) {
 }
 
 void captureAndUpload() {
-  camera_fb_t *fb = esp_camera_fb_get();
-  if (!fb) {
-    Serial.println("Camera capture failed");
-    return;
+  Serial.printf("Free heap: %d bytes\n", ESP.getFreeHeap());
+
+  bool ok = false;
+  while (!ok) {
+    camera_fb_t *fb = esp_camera_fb_get();
+    if (!fb) {
+      Serial.println("Camera capture failed, retrying in 5s...");
+      delay(5000);
+      continue;
+    }
+
+    String timestamp     = getTimestamp();
+    String fileTimestamp = getFilenameTimestamp();
+    String storagePath   = device_id + "/" + fileTimestamp + ".jpg";
+
+    ok = uploadToSupabase(fb->buf, fb->len, storagePath);
+    esp_camera_fb_return(fb);
+
+    if (!ok) {
+      Serial.println("Upload failed, retrying in 5s...");
+      if (!mqtt_client.connected()) connectToMQTT();
+      mqtt_client.loop();
+      delay(5000);
+      continue;
+    }
+
+    StaticJsonDocument<300> doc;
+    doc["device_id"]      = device_id;
+    doc["time"]           = timestamp;
+    doc["storage_bucket"] = "captured_images";
+    doc["storage_path"]   = storagePath;
+
+    char mqttMsg[300];
+    serializeJson(doc, mqttMsg);
+    mqtt_client.publish((base_topic + "captured_images").c_str(), mqttMsg);
+    Serial.println("Published: " + String(mqttMsg));
   }
-
-  String timestamp     = getTimestamp();
-  String fileTimestamp = getFilenameTimestamp();
-  String storagePath   = device_id + "/" + fileTimestamp + ".jpg";
-
-  bool ok = uploadToSupabase(fb->buf, fb->len, storagePath);
-  esp_camera_fb_return(fb);
-
-  // Flush any stale frames from the buffer
-  camera_fb_t *flush;
-  while ((flush = esp_camera_fb_get()) != NULL) {
-    esp_camera_fb_return(flush);
-  }
-
-  if (!ok) {
-    Serial.println("Upload failed, skipping MQTT publish");
-    return;
-  }
-
-  StaticJsonDocument<300> doc;
-  doc["device_id"]      = device_id;
-  doc["time"]           = timestamp;
-  doc["storage_bucket"] = "captured_images";
-  doc["storage_path"]   = storagePath;
-
-  char mqttMsg[300];
-  serializeJson(doc, mqttMsg);
-  mqtt_client.publish((base_topic + "captured_images").c_str(), mqttMsg);
-  Serial.println("Published: " + String(mqttMsg));
 }
 
 void loop() {
@@ -286,7 +289,7 @@ void loop() {
   mqtt_client.loop();
 
   if (millis() - lastCapture >= samplingInterval) {
-    lastCapture = millis();
-    captureAndUpload();
+    captureAndUpload();          // only returns after successful upload
+    lastCapture = millis();      // start interval AFTER success
   }
 }
