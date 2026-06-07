@@ -1,4 +1,4 @@
-to be done
+fully developed
 
 modelo proposto (soh pra bananas):
 TCleo/banana-maturity-mobile-vit-small on Hugging Face, 
