@@ -44,7 +44,6 @@ def run_web():
 
 # ----------------------------------------------------------------
 def get_device_context(device_id: str, device_table: str, device_id_col: str) -> dict | None:
-    """Returns group_id and store_id for a given device."""
     try:
         res = supabase.table(device_table).select("group_id, store_id").eq(device_id_col, device_id).single().execute()
         return res.data
@@ -82,7 +81,7 @@ def handle_sensordata(device_id: str, payload: dict):
             "latest_humidity":    humidity,
         }).eq("group_id", ctx["group_id"]).execute()
 
-    log.info(f"[sensordata] Inserted reading for group {ctx['group_id']}")
+    log.info(f"[sensordata] Inserted reading and updated group {ctx['group_id']}")
 
 
 def handle_captured_images(device_id: str, payload: dict):
@@ -108,7 +107,7 @@ def handle_captured_images(device_id: str, payload: dict):
     }).execute()
 
     log.info(f"[captured_images] Inserted capture for group {ctx['group_id']}")
-    # TODO: enqueue CV analysis job here once model is ready
+    # TODO: enqueue CV analysis job via Procrastinate once queue is ready
 
 
 # ----------------------------------------------------------------
@@ -134,7 +133,6 @@ def on_message(client, userdata, msg):
         log.error(f"Failed to parse message on {topic}: {e}")
         return
 
-    # Extract device_id from topic: "devices/<device_id>/<type>"
     parts = topic.split("/")
     if len(parts) != 3:
         log.warning(f"Unexpected topic format: {topic}")
@@ -153,7 +151,6 @@ def on_message(client, userdata, msg):
 
 # ----------------------------------------------------------------
 def main():
-    # Start web server in background thread
     threading.Thread(target=run_web, daemon=True).start()
     log.info("Web server started")
 

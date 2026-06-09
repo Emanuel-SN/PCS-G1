@@ -44,15 +44,14 @@ model     = AutoModelForImageClassification.from_pretrained(MODEL_ID)
 model.eval()
 log.info("Model loaded")
 
-# Expected class labels — verify these match the model's config.id2label
 LABEL_UNRIPE   = "underripe"
 LABEL_RIPE     = "ripe"
 LABEL_OVERRIPE = "overripe"
 
 FRESHNESS_WEIGHTS = {
-    LABEL_UNRIPE:   0.5,
+    LABEL_UNRIPE:   0.3,
     LABEL_RIPE:     1.0,
-    LABEL_OVERRIPE: 0.1,
+    LABEL_OVERRIPE: 0.0,
 }
 
 # ----------------------------------------------------------------
@@ -68,12 +67,10 @@ def run_web():
 
 # ----------------------------------------------------------------
 def compute_freshness(scores: dict) -> float:
-    """Weighted freshness score from class probabilities."""
     return sum(FRESHNESS_WEIGHTS.get(label, 0) * prob for label, prob in scores.items())
 
 
 def download_image(storage_bucket: str, storage_path: str) -> Image.Image:
-    """Download image from Supabase public storage."""
     url = f"{SUPABASE_URL}/storage/v1/object/public/{storage_bucket}/{storage_path}"
     log.info(f"Downloading image from {url}")
     response = requests.get(url, timeout=15)
@@ -82,8 +79,7 @@ def download_image(storage_bucket: str, storage_path: str) -> Image.Image:
 
 
 def run_inference(image: Image.Image) -> dict:
-    """Run the banana maturity model and return per-class probabilities."""
-    inputs  = processor(images=image, return_tensors="pt")
+    inputs = processor(images=image, return_tensors="pt")
     with torch.no_grad():
         logits = model(**inputs).logits
     probs = torch.softmax(logits, dim=-1)[0]
@@ -102,7 +98,6 @@ def handle_captured_image(payload: dict):
     group_id       = None
     store_id       = None
 
-    # Look up group and store from cam_devices
     try:
         res = supabase.table("cam_devices").select("group_id, store_id").eq("cam_device_id", cam_device_id).single().execute()
         group_id = res.data.get("group_id")
@@ -110,7 +105,6 @@ def handle_captured_image(payload: dict):
     except Exception as e:
         log.warning(f"Could not find context for cam {cam_device_id}: {e}")
 
-    # Download and run inference
     try:
         image  = download_image(storage_bucket, storage_path)
         scores = run_inference(image)
@@ -120,7 +114,7 @@ def handle_captured_image(payload: dict):
 
     freshness = compute_freshness(scores)
 
-    # Insert into CV_analysis
+    # Insert into cv_analysis
     supabase.table("cv_analysis").insert({
         "cam_device_id":  cam_device_id,
         "group_id":       group_id,
@@ -133,6 +127,13 @@ def handle_captured_image(payload: dict):
         "storage_path":   storage_path,
         "captured_at":    captured_at,
     }).execute()
+
+    # Update latest_freshness on group
+    if group_id:
+        supabase.table("groups").update({
+            "latest_freshness": freshness,
+        }).eq("group_id", group_id).execute()
+        log.info(f"Updated latest_freshness to {freshness:.3f} for group {group_id}")
 
     log.info(f"CV analysis inserted — freshness: {freshness:.3f} for group {group_id}")
     # TODO: dispatch price optimization job via Procrastinate once queue is ready
