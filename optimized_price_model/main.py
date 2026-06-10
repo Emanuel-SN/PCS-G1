@@ -123,7 +123,7 @@ def run_price_optimization():
         # Fetch product info
         try:
             prod_res = supabase.table("product_info").select(
-                "base_price, T_min, T_max, H_min, H_max"
+                "base_price, t_min, t_max, h_min, h_max"
             ).eq("product_id", product_id).single().execute()
             product = prod_res.data
         except Exception as e:
@@ -131,10 +131,10 @@ def run_price_optimization():
             continue
 
         base_price = product.get("base_price", 4.0)
-        t_min      = product.get("T_min")
-        t_max      = product.get("T_max")
-        h_min      = product.get("H_min")
-        h_max      = product.get("H_max")
+        t_min      = product.get("t_min")
+        t_max      = product.get("t_max")
+        h_min      = product.get("h_min")
+        h_max      = product.get("h_max")
 
         # Check if conditions are out of range
         t_out = temperature is not None and t_min is not None and t_max is not None and not (t_min <= temperature <= t_max)
