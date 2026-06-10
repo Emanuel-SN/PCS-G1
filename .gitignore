@@ -2,3 +2,4 @@ firmware/esp32-cam-module/esp32cam/config.h
 firmware/esp32-sensor-module/esp32sensor/config.h
 mqtt_pipeline/.env
 computer_vision_model/.env
+optimized_price_model/.env

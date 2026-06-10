@@ -3,5 +3,3 @@ fully developed
 modelo proposto (soh pra bananas):
 TCleo/banana-maturity-mobile-vit-small on Hugging Face, 
 trained specifically for banana maturity classification
-
-vamo fazer o projeto funcionar soh pra bananas por hora
