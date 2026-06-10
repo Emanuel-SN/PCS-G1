@@ -140,6 +140,11 @@
     transition: all 0.15s;
   }
 
+  .btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
   .btn-primary {
     background: var(--green-700);
     color: var(--white);
@@ -149,7 +154,7 @@
     font-size: 15px;
   }
 
-  .btn-primary:hover { background: var(--green-800); }
+  .btn-primary:hover:not(:disabled) { background: var(--green-800); }
 
   .btn-secondary {
     background: var(--green-50);
@@ -157,14 +162,14 @@
     border: 1.5px solid var(--green-200);
   }
 
-  .btn-secondary:hover { background: var(--green-100); }
+  .btn-secondary:hover:not(:disabled) { background: var(--green-100); }
 
   .btn-amber {
     background: var(--amber-500);
     color: var(--white);
   }
 
-  .btn-amber:hover { background: #c98a18; }
+  .btn-amber:hover:not(:disabled) { background: #c98a18; }
 
   .btn-ghost {
     background: transparent;
@@ -172,7 +177,7 @@
     padding: 6px 10px;
   }
 
-  .btn-ghost:hover { background: var(--gray-100); color: var(--gray-700); }
+  .btn-ghost:hover:not(:disabled) { background: var(--gray-100); color: var(--gray-700); }
 
   .btn-danger {
     background: var(--red-100);
@@ -180,7 +185,7 @@
     border: 1.5px solid #f5c6c1;
   }
 
-  .btn-danger:hover { background: #fbd5d1; }
+  .btn-danger:hover:not(:disabled) { background: #fbd5d1; }
 
   .login-error {
     background: var(--red-100);
@@ -280,6 +285,11 @@
     cursor: pointer;
     transition: all 0.15s;
     text-decoration: none;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    font-family: 'Inter', sans-serif;
   }
 
   .nav-item:hover { background: rgba(255,255,255,0.06); color: var(--white); }
@@ -307,6 +317,7 @@
     font-size: 13px;
     font-weight: 600;
     color: var(--white);
+    flex-shrink: 0;
   }
 
   .user-name {
@@ -314,6 +325,9 @@
     font-weight: 500;
     color: var(--white);
     flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .logout-btn {
@@ -419,6 +433,28 @@
     color: var(--green-900);
   }
 
+  /* ── AUTO REFRESH INDICATOR ── */
+  .refresh-indicator {
+    font-size: 12px;
+    color: var(--gray-500);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .refresh-dot {
+    width: 7px;
+    height: 7px;
+    background: var(--green-400);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
   /* ── GROUP CARDS ── */
   .groups-grid {
     display: grid;
@@ -436,7 +472,6 @@
   }
 
   .group-card:hover { box-shadow: var(--shadow-md); }
-
   .group-card.alert { border-color: #f5c6c1; }
 
   .group-card-header {
@@ -451,9 +486,6 @@
     font-size: 15px;
     font-weight: 600;
     color: var(--green-900);
-    display: flex;
-    align-items: center;
-    gap: 8px;
   }
 
   .group-card-product {
@@ -470,6 +502,7 @@
     border-radius: 20px;
     font-size: 11px;
     font-weight: 500;
+    white-space: nowrap;
   }
 
   .badge-green { background: var(--green-100); color: var(--green-700); }
@@ -477,9 +510,7 @@
   .badge-red   { background: var(--red-100);   color: var(--red-500); }
   .badge-gray  { background: var(--gray-100);  color: var(--gray-500); }
 
-  .group-card-body {
-    padding: 16px 20px;
-  }
+  .group-card-body { padding: 16px 20px; }
 
   .metrics-row {
     display: grid;
@@ -488,9 +519,7 @@
     margin-bottom: 16px;
   }
 
-  .metric {
-    text-align: center;
-  }
+  .metric { text-align: center; }
 
   .metric-value {
     font-size: 20px;
@@ -508,9 +537,7 @@
   .metric-alert .metric-value { color: var(--red-500); }
   .metric-warn  .metric-value { color: var(--amber-500); }
 
-  .freshness-bar-wrap {
-    margin-bottom: 16px;
-  }
+  .freshness-bar-wrap { margin-bottom: 16px; }
 
   .freshness-bar-label {
     display: flex;
@@ -562,11 +589,7 @@
   }
 
   .price-suggested .price-value { color: var(--green-600); }
-
-  .price-arrow {
-    font-size: 18px;
-    color: var(--gray-300);
-  }
+  .price-arrow { font-size: 18px; color: var(--gray-300); }
 
   .group-card-footer {
     padding: 12px 20px;
@@ -576,10 +599,7 @@
     justify-content: space-between;
   }
 
-  .device-ids {
-    display: flex;
-    gap: 8px;
-  }
+  .device-ids { display: flex; gap: 8px; flex-wrap: wrap; }
 
   .device-tag {
     font-size: 10px;
@@ -590,10 +610,7 @@
     border-radius: 4px;
   }
 
-  .card-actions {
-    display: flex;
-    gap: 6px;
-  }
+  .card-actions { display: flex; gap: 6px; }
 
   /* ── MODAL ── */
   .modal-overlay {
@@ -643,9 +660,7 @@
     color: var(--green-900);
   }
 
-  .modal-body {
-    padding: 20px 24px;
-  }
+  .modal-body { padding: 20px 24px; }
 
   .modal-footer {
     padding: 16px 24px;
@@ -667,38 +682,11 @@
 
   .close-btn:hover { color: var(--gray-700); }
 
-  /* ── TABS ── */
-  .tabs {
-    display: flex;
-    gap: 0;
-    border-bottom: 2px solid var(--gray-100);
-    margin-bottom: 20px;
-  }
-
-  .tab {
-    padding: 10px 16px;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--gray-500);
-    cursor: pointer;
-    border-bottom: 2px solid transparent;
-    margin-bottom: -2px;
-    transition: all 0.15s;
-  }
-
-  .tab:hover { color: var(--green-700); }
-  .tab.active { color: var(--green-700); border-bottom-color: var(--green-700); }
-
-  .tab-panel { display: none; }
-  .tab-panel.active { display: block; }
-
   /* ── TOAST ── */
   #toast {
     position: fixed;
     bottom: 24px;
     right: 24px;
-    background: var(--green-900);
-    color: var(--white);
     padding: 12px 18px;
     border-radius: var(--radius-sm);
     font-size: 14px;
@@ -707,12 +695,12 @@
     opacity: 0;
     transition: all 0.25s;
     pointer-events: none;
+    max-width: 320px;
   }
 
-  #toast.show {
-    transform: translateY(0);
-    opacity: 1;
-  }
+  #toast.show { transform: translateY(0); opacity: 1; }
+  #toast.toast-success { background: var(--green-900); color: var(--white); }
+  #toast.toast-error   { background: var(--red-500);   color: var(--white); }
 
   /* ── EMPTY STATE ── */
   .empty-state {
@@ -729,21 +717,9 @@
   .divider { height: 1px; background: var(--gray-100); margin: 16px 0; }
 
   /* ── INLINE EDIT ── */
-  .inline-edit {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    cursor: pointer;
-  }
-
+  .inline-edit { display: inline-flex; align-items: center; gap: 4px; cursor: pointer; }
   .inline-edit:hover .edit-icon { opacity: 1; }
-
-  .edit-icon {
-    opacity: 0;
-    font-size: 12px;
-    color: var(--gray-500);
-    transition: opacity 0.15s;
-  }
+  .edit-icon { opacity: 0; font-size: 12px; color: var(--gray-500); transition: opacity 0.15s; }
 
   /* ── LOADING ── */
   .spinner {
@@ -753,6 +729,12 @@
     border-radius: 50%;
     animation: spin 0.7s linear infinite;
     display: inline-block;
+    flex-shrink: 0;
+  }
+
+  .spinner-sm {
+    width: 14px; height: 14px;
+    border-width: 2px;
   }
 
   @keyframes spin { to { transform: rotate(360deg); } }
@@ -763,11 +745,56 @@
     justify-content: center;
     padding: 40px;
   }
+
+  /* ── TABLE ── */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .data-table thead tr {
+    background: var(--green-50);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gray-500);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .data-table th { padding: 12px 16px; text-align: left; }
+  .data-table th:last-child { text-align: right; }
+
+  .data-table tbody tr {
+    border-top: 1px solid var(--gray-100);
+    font-size: 14px;
+    transition: background 0.1s;
+  }
+
+  .data-table tbody tr:hover { background: var(--green-50); }
+  .data-table td { padding: 12px 16px; }
+  .data-table td:last-child { text-align: right; }
+
+  /* ── INFO BOX ── */
+  .info-box {
+    background: var(--amber-100);
+    border: 1px solid #f5d98a;
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #7a5210;
+    margin-bottom: 16px;
+  }
 </style>
 </head>
 <body>
 
-<!-- LOGIN -->
+<!-- ═══════════════════════════════════════════
+     LOGIN
+═══════════════════════════════════════════ -->
 <div id="login-screen">
   <div class="login-card">
     <div class="login-logo">
@@ -785,11 +812,13 @@
       <label>Senha</label>
       <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password">
     </div>
-    <button class="btn btn-primary" onclick="doLogin()" id="login-btn">Entrar</button>
+    <button class="btn btn-primary" id="login-btn" onclick="doLogin()">Entrar</button>
   </div>
 </div>
 
-<!-- APP -->
+<!-- ═══════════════════════════════════════════
+     APP
+═══════════════════════════════════════════ -->
 <div id="app">
   <!-- SIDEBAR -->
   <aside class="sidebar">
@@ -807,15 +836,15 @@
       </div>
     </div>
     <nav class="sidebar-nav">
-      <div class="nav-item active" onclick="setTab('dashboard')">
+      <button class="nav-item active" id="nav-dashboard" onclick="setTab('dashboard', this)">
         <span>📊</span> Painel
-      </div>
-      <div class="nav-item" onclick="setTab('groups')">
+      </button>
+      <button class="nav-item" id="nav-groups" onclick="setTab('groups', this)">
         <span>🗂️</span> Mesas
-      </div>
-      <div class="nav-item" onclick="setTab('devices')">
+      </button>
+      <button class="nav-item" id="nav-devices" onclick="setTab('devices', this)">
         <span>📡</span> Dispositivos
-      </div>
+      </button>
     </nav>
     <div class="sidebar-footer">
       <div class="user-info">
@@ -831,23 +860,26 @@
     <div class="topbar">
       <span class="topbar-title" id="topbar-title">Painel</span>
       <div class="topbar-actions">
-        <button class="btn btn-secondary" onclick="refreshAll()">↻ Atualizar</button>
-        <button class="btn btn-primary" onclick="openNewGroup()">+ Nova Mesa</button>
+        <span class="refresh-indicator">
+          <span class="refresh-dot"></span>
+          <span id="last-refresh-label">—</span>
+        </span>
+        <button class="btn btn-secondary" id="refresh-btn" onclick="manualRefresh()">↻ Atualizar</button>
+        <button class="btn btn-primary" id="topbar-new-btn" onclick="openNewGroup()">+ Nova Mesa</button>
       </div>
     </div>
 
     <div class="content">
-
       <!-- DASHBOARD TAB -->
-      <div id="tab-dashboard" class="tab-content">
-        <div class="stats-row" id="stats-row">
+      <div id="tab-dashboard">
+        <div class="stats-row">
           <div class="stat-card">
             <div class="stat-label">Mesas ativas</div>
             <div class="stat-value" id="stat-groups">—</div>
             <div class="stat-sub">grupos monitorados</div>
           </div>
           <div class="stat-card">
-            <div class="stat-label">Dispositivos online</div>
+            <div class="stat-label">Dispositivos</div>
             <div class="stat-value" id="stat-devices">—</div>
             <div class="stat-sub">sensores + câmeras</div>
           </div>
@@ -862,17 +894,16 @@
             <div class="stat-sub">índice ponderado</div>
           </div>
         </div>
-
         <div class="section-header">
           <span class="section-title">Mesas</span>
         </div>
         <div class="groups-grid" id="groups-grid">
-          <div class="loading-overlay"><div class="spinner"></div></div>
+          <div class="loading-overlay" style="grid-column:1/-1"><div class="spinner"></div></div>
         </div>
       </div>
 
       <!-- GROUPS TAB -->
-      <div id="tab-groups" class="tab-content" style="display:none">
+      <div id="tab-groups" style="display:none">
         <div class="section-header">
           <span class="section-title">Gerenciar Mesas</span>
           <button class="btn btn-primary" onclick="openNewGroup()">+ Nova Mesa</button>
@@ -883,15 +914,15 @@
       </div>
 
       <!-- DEVICES TAB -->
-      <div id="tab-devices" class="tab-content" style="display:none">
+      <div id="tab-devices" style="display:none">
         <div class="section-header">
           <span class="section-title">Dispositivos</span>
+          <button class="btn btn-primary" onclick="openRegisterDevice()">+ Registrar Dispositivo</button>
         </div>
         <div id="devices-wrap">
           <div class="loading-overlay"><div class="spinner"></div></div>
         </div>
       </div>
-
     </div>
   </div>
 </div>
@@ -899,7 +930,9 @@
 <!-- TOAST -->
 <div id="toast"></div>
 
-<!-- MODAL: NEW / EDIT GROUP -->
+<!-- ═══════════════════════════════════════════
+     MODAL: NEW / EDIT GROUP
+═══════════════════════════════════════════ -->
 <div class="modal-overlay" id="modal-group">
   <div class="modal">
     <div class="modal-header">
@@ -920,22 +953,28 @@
       </div>
       <div class="divider"></div>
       <div class="form-group">
-        <label>ID do sensor (MAC)</label>
-        <input type="text" id="group-sensor-input" placeholder="ex: 246F28AA3B12" style="font-family:'JetBrains Mono',monospace;font-size:13px">
+        <label>ID do sensor (MAC sem dois-pontos)</label>
+        <input type="text" id="group-sensor-input" placeholder="ex: 246F28AA3B12"
+               style="font-family:'JetBrains Mono',monospace;font-size:13px"
+               maxlength="12">
       </div>
       <div class="form-group">
-        <label>ID da câmera (MAC)</label>
-        <input type="text" id="group-cam-input" placeholder="ex: E08CFEB64B2C" style="font-family:'JetBrains Mono',monospace;font-size:13px">
+        <label>ID da câmera (MAC sem dois-pontos)</label>
+        <input type="text" id="group-cam-input" placeholder="ex: E08CFEB64B2C"
+               style="font-family:'JetBrains Mono',monospace;font-size:13px"
+               maxlength="12">
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('modal-group')">Cancelar</button>
-      <button class="btn btn-primary" onclick="saveGroup()">Salvar</button>
+      <button class="btn btn-primary" id="btn-save-group" onclick="saveGroup()">Salvar</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL: APPLY PRICE -->
+<!-- ═══════════════════════════════════════════
+     MODAL: APPLY PRICE
+═══════════════════════════════════════════ -->
 <div class="modal-overlay" id="modal-price">
   <div class="modal">
     <div class="modal-header">
@@ -950,23 +989,25 @@
       <div style="display:flex;gap:16px;justify-content:center;align-items:center;padding:20px;background:var(--green-50);border-radius:var(--radius-sm)">
         <div class="price-block" style="text-align:center">
           <div class="price-label">Preço atual</div>
-          <div class="price-value" id="modal-price-current" style="font-size:24px;font-family:'JetBrains Mono',monospace;color:var(--gray-700)">—</div>
+          <div id="modal-price-current" style="font-size:24px;font-family:'JetBrains Mono',monospace;color:var(--gray-700);font-weight:700">—</div>
         </div>
         <div style="font-size:24px;color:var(--green-400)">→</div>
         <div class="price-block" style="text-align:center">
           <div class="price-label">Preço sugerido</div>
-          <div class="price-value" id="modal-price-suggested" style="font-size:24px;font-family:'JetBrains Mono',monospace;color:var(--green-700)">—</div>
+          <div id="modal-price-suggested" style="font-size:24px;font-family:'JetBrains Mono',monospace;color:var(--green-700);font-weight:700">—</div>
         </div>
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('modal-price')">Cancelar</button>
-      <button class="btn btn-amber" onclick="applyPrice()">Aplicar preço</button>
+      <button class="btn btn-amber" id="btn-apply-price" onclick="applyPrice()">Aplicar preço</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL: DEVICE CONFIG -->
+<!-- ═══════════════════════════════════════════
+     MODAL: DEVICE CONFIG
+═══════════════════════════════════════════ -->
 <div class="modal-overlay" id="modal-device">
   <div class="modal">
     <div class="modal-header">
@@ -982,12 +1023,12 @@
       <div class="form-group">
         <label>Intervalo de captura (ms)</label>
         <input type="number" id="device-sampling-input" placeholder="30000" min="5000" step="1000">
-        <p style="font-size:11px;color:var(--gray-500);margin-top:4px">Mínimo recomendado: 10000ms (10s)</p>
+        <p style="font-size:11px;color:var(--gray-500);margin-top:4px">Mínimo recomendado: 10 000 ms (10 s)</p>
       </div>
       <div id="sensor-extra-config">
         <div class="divider"></div>
         <div class="form-group">
-          <label>Mostrar dados no LCD</label>
+          <label>Mostrar temperatura e umidade no LCD</label>
           <select id="device-showdata-input">
             <option value="true">Sim</option>
             <option value="false">Não</option>
@@ -997,12 +1038,48 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('modal-device')">Cancelar</button>
-      <button class="btn btn-primary" onclick="saveDeviceConfig()">Enviar comando</button>
+      <button class="btn btn-primary" id="btn-save-device" onclick="saveDeviceConfig()">Enviar comando</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL: EDIT STORE -->
+<!-- ═══════════════════════════════════════════
+     MODAL: REGISTER DEVICE
+═══════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-register-device">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Registrar Dispositivo</span>
+      <button class="close-btn" onclick="closeModal('modal-register-device')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="info-box">
+        O ID do dispositivo é o endereço MAC sem dois-pontos (ex: <span style="font-family:'JetBrains Mono',monospace">246F28AA3B12</span>). Ele é exibido no monitor serial ao ligar o dispositivo.
+      </div>
+      <div class="form-group">
+        <label>Tipo de dispositivo</label>
+        <select id="register-device-type">
+          <option value="sensor">📡 Sensor (temperatura + umidade)</option>
+          <option value="cam">📷 Câmera</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>ID do dispositivo (MAC)</label>
+        <input type="text" id="register-device-id" placeholder="ex: 246F28AA3B12"
+               style="font-family:'JetBrains Mono',monospace;font-size:13px"
+               maxlength="12">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-register-device')">Cancelar</button>
+      <button class="btn btn-primary" id="btn-register-device" onclick="registerDevice()">Registrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MODAL: EDIT STORE
+═══════════════════════════════════════════ -->
 <div class="modal-overlay" id="modal-store">
   <div class="modal">
     <div class="modal-header">
@@ -1017,67 +1094,81 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('modal-store')">Cancelar</button>
-      <button class="btn btn-primary" onclick="saveStoreName()">Salvar</button>
+      <button class="btn btn-primary" id="btn-save-store" onclick="saveStoreName()">Salvar</button>
     </div>
   </div>
 </div>
 
+<!-- ═══════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════ -->
 <script>
 // ─────────────────────────────────────────────
-// CONFIG — replace with your Supabase details
+// CONFIG — preencha com suas credenciais
 // ─────────────────────────────────────────────
-const SUPABASE_URL = 'https://monenhojbtwdmauabpsk.supabase.co';
-const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY_HERE';
+const SUPABASE_URL        = 'https://SEU_PROJECT_ID.supabase.co';
+const SUPABASE_ANON_KEY   = 'SUA_ANON_KEY_AQUI';
+const COMMAND_ENDPOINT    = 'https://SEU_PIPELINE.railway.app/command';
 
-// MQTT command endpoint — calls your backend to publish
-// For now commands are sent via a simple REST call to your mqtt_pipeline
-// You'll need to add a /command endpoint to mqtt_pipeline, OR use Supabase realtime triggers
-// For MVP we'll publish via a small fetch to a command endpoint
-const COMMAND_ENDPOINT = 'https://YOUR-MQTT-PIPELINE.railway.app/command'; // replace with your Railway URL
+// Intervalo de auto-refresh em ms (padrão: 30 segundos)
+const AUTO_REFRESH_MS = 30_000;
 
 // ─────────────────────────────────────────────
 // STATE
 // ─────────────────────────────────────────────
-let state = {
-  user: null,
-  store: null,
-  groups: [],
-  products: [],
+const state = {
+  user:          null,
+  store:         null,
+  groups:        [],
+  products:      [],
   sensorDevices: [],
-  camDevices: [],
+  camDevices:    [],
+  currentTab:    'dashboard',
 };
 
+let autoRefreshTimer = null;
+
 // ─────────────────────────────────────────────
-// SUPABASE HELPERS
+// SUPABASE REST HELPERS
 // ─────────────────────────────────────────────
 async function sbFetch(path, options = {}) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
-    ...options,
-    headers: {
-      'apikey': SUPABASE_ANON_KEY,
-      'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-      'Content-Type': 'application/json',
-      'Prefer': options.prefer || '',
-      ...(options.headers || {}),
-    },
-  });
+  const url = `${SUPABASE_URL}/rest/v1/${path}`;
+  const headers = {
+    'apikey':        SUPABASE_ANON_KEY,
+    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+    'Content-Type':  'application/json',
+  };
+  if (options.prefer) headers['Prefer'] = options.prefer;
+  if (options.headers) Object.assign(headers, options.headers);
+
+  const res = await fetch(url, { ...options, headers });
+
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.message || res.statusText);
+    throw new Error(err.message || err.error || `HTTP ${res.status}`);
   }
   if (res.status === 204) return null;
   return res.json();
 }
 
 const sb = {
-  select: (table, query = '*', filters = '') =>
-    sbFetch(`${table}?select=${encodeURIComponent(query)}${filters ? '&' + filters : ''}`),
+  select: (table, cols = '*', filter = '') =>
+    sbFetch(`${table}?select=${encodeURIComponent(cols)}${filter ? '&' + filter : ''}`),
+
+  selectOne: (table, cols = '*', filter = '') =>
+    sbFetch(`${table}?select=${encodeURIComponent(cols)}&${filter}&limit=1`).then(r => r?.[0] ?? null),
+
   insert: (table, data) =>
-    sbFetch(`${table}`, { method: 'POST', body: JSON.stringify(data), prefer: 'return=representation' }),
+    sbFetch(table, { method: 'POST', body: JSON.stringify(data), prefer: 'return=representation' }),
+
   update: (table, data, filter) =>
     sbFetch(`${table}?${filter}`, { method: 'PATCH', body: JSON.stringify(data), prefer: 'return=representation' }),
+
   delete: (table, filter) =>
     sbFetch(`${table}?${filter}`, { method: 'DELETE' }),
+
+  upsert: (table, data, onConflict) =>
+    sbFetch(`${table}?on_conflict=${onConflict}`, { method: 'POST', body: JSON.stringify(data), prefer: 'return=representation,resolution=merge-duplicates' }),
 };
 
 // ─────────────────────────────────────────────
@@ -1086,39 +1177,52 @@ const sb = {
 async function doLogin() {
   const username = document.getElementById('login-username').value.trim();
   const password = document.getElementById('login-password').value;
-  if (!username || !password) return;
+  const errEl    = document.getElementById('login-error');
+  const btn      = document.getElementById('login-btn');
 
-  const btn = document.getElementById('login-btn');
-  btn.textContent = 'Entrando...';
-  btn.disabled = true;
+  errEl.style.display = 'none';
+  if (!username || !password) {
+    errEl.textContent = 'Preencha usuário e senha.';
+    errEl.style.display = 'block';
+    return;
+  }
 
+  setLoading(btn, true, 'Entrando...');
   try {
-    const users = await sb.select('users', 'user_id,username', `username=eq.${encodeURIComponent(username)}&password=eq.${encodeURIComponent(password)}`);
+    const users = await sb.select(
+      'users',
+      'user_id,username',
+      `username=eq.${encodeURIComponent(username)}&password=eq.${encodeURIComponent(password)}`
+    );
     if (!users || users.length === 0) {
-      document.getElementById('login-error').style.display = 'block';
+      errEl.textContent = 'Usuário ou senha incorretos.';
+      errEl.style.display = 'block';
       return;
     }
     state.user = users[0];
-    document.getElementById('login-error').style.display = 'none';
     await loadApp();
   } catch(e) {
-    document.getElementById('login-error').textContent = 'Erro ao conectar. Tente novamente.';
-    document.getElementById('login-error').style.display = 'block';
+    errEl.textContent = 'Erro ao conectar: ' + e.message;
+    errEl.style.display = 'block';
   } finally {
-    btn.textContent = 'Entrar';
-    btn.disabled = false;
+    setLoading(btn, false, 'Entrar');
   }
 }
 
 function doLogout() {
-  state = { user: null, store: null, groups: [], products: [], sensorDevices: [], camDevices: [] };
-  document.getElementById('app').style.display = 'none';
+  clearInterval(autoRefreshTimer);
+  Object.assign(state, { user: null, store: null, groups: [], products: [], sensorDevices: [], camDevices: [] });
+  document.getElementById('app').style.display          = 'none';
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('login-password').value = '';
+  document.getElementById('login-username').value = '';
 }
 
-document.getElementById('login-password').addEventListener('keydown', e => {
-  if (e.key === 'Enter') doLogin();
+// Enter key on either login field
+['login-username', 'login-password'].forEach(id => {
+  document.getElementById(id).addEventListener('keydown', e => {
+    if (e.key === 'Enter') doLogin();
+  });
 });
 
 // ─────────────────────────────────────────────
@@ -1126,14 +1230,14 @@ document.getElementById('login-password').addEventListener('keydown', e => {
 // ─────────────────────────────────────────────
 async function loadApp() {
   document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
+  document.getElementById('app').style.display          = 'block';
 
-  const initials = state.user.username.slice(0, 2).toUpperCase();
-  document.getElementById('user-avatar').textContent = initials;
+  document.getElementById('user-avatar').textContent      = state.user.username.slice(0, 2).toUpperCase();
   document.getElementById('user-name-display').textContent = state.user.username;
 
   await loadStore();
   await refreshAll();
+  startAutoRefresh();
 }
 
 async function loadStore() {
@@ -1141,18 +1245,42 @@ async function loadStore() {
   if (stores && stores.length > 0) {
     state.store = stores[0];
     document.getElementById('store-name-display').textContent = state.store.store_name;
+  } else {
+    // Auto-create a store for this user if none exists
+    const created = await sb.insert('stores', { user_id: state.user.user_id, store_name: state.user.username + "'s Store" });
+    if (created && created.length > 0) {
+      state.store = created[0];
+      document.getElementById('store-name-display').textContent = state.store.store_name;
+    }
   }
 }
 
-async function refreshAll() {
-  await Promise.all([
-    loadGroups(),
-    loadProducts(),
-    loadDevices(),
-  ]);
+function startAutoRefresh() {
+  clearInterval(autoRefreshTimer);
+  autoRefreshTimer = setInterval(() => refreshAll(true), AUTO_REFRESH_MS);
+}
+
+async function manualRefresh() {
+  const btn = document.getElementById('refresh-btn');
+  setLoading(btn, true, '↻');
+  await refreshAll();
+  setLoading(btn, false, '↻ Atualizar');
+}
+
+async function refreshAll(silent = false) {
+  try {
+    await Promise.all([loadGroups(), loadProducts(), loadDevices()]);
+  } catch(e) {
+    if (!silent) showToast('Erro ao carregar dados: ' + e.message, 'error');
+    return;
+  }
   renderDashboard();
   renderGroupsList();
   renderDevices();
+
+  const now = new Date();
+  document.getElementById('last-refresh-label').textContent =
+    'Atualizado ' + now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 }
 
 // ─────────────────────────────────────────────
@@ -1160,19 +1288,23 @@ async function refreshAll() {
 // ─────────────────────────────────────────────
 async function loadGroups() {
   if (!state.store) return;
-  state.groups = await sb.select('groups',
+  state.groups = await sb.select(
+    'groups',
     'group_id,group_name,product_id,sensor_device_id,cam_device_id,latest_temperature,latest_humidity,latest_freshness,display_price,recommended_price',
     `store_id=eq.${state.store.store_id}`
   ) || [];
 }
 
 async function loadProducts() {
-  state.products = await sb.select('product_info', 'product_id,product_name,t_min,t_max,h_min,h_max,base_price,unit') || [];
+  state.products = await sb.select(
+    'product_info',
+    'product_id,product_name,t_min,t_max,h_min,h_max,base_price,unit'
+  ) || [];
   const sel = document.getElementById('group-product-select');
   sel.innerHTML = '<option value="">— Selecionar produto —</option>';
   state.products.forEach(p => {
     const opt = document.createElement('option');
-    opt.value = p.product_id;
+    opt.value       = p.product_id;
     opt.textContent = p.product_name;
     sel.appendChild(opt);
   });
@@ -1180,73 +1312,86 @@ async function loadProducts() {
 
 async function loadDevices() {
   if (!state.store) return;
-  state.sensorDevices = await sb.select('sensor_devices', 'sensor_device_id,group_id,led_flag', `store_id=eq.${state.store.store_id}`) || [];
-  state.camDevices    = await sb.select('cam_devices',    'cam_device_id,group_id',              `store_id=eq.${state.store.store_id}`) || [];
+  [state.sensorDevices, state.camDevices] = await Promise.all([
+    sb.select('sensor_devices', 'sensor_device_id,group_id,led_flag', `store_id=eq.${state.store.store_id}`),
+    sb.select('cam_devices',    'cam_device_id,group_id',              `store_id=eq.${state.store.store_id}`),
+  ]);
+  state.sensorDevices = state.sensorDevices || [];
+  state.camDevices    = state.camDevices    || [];
 }
 
 // ─────────────────────────────────────────────
-// RENDER DASHBOARD
+// RENDER — DASHBOARD
 // ─────────────────────────────────────────────
 function renderDashboard() {
-  const groups = state.groups;
-  const alerts = groups.filter(g => isGroupAlert(g)).length;
-  const freshnessVals = groups.filter(g => g.latest_freshness != null).map(g => g.latest_freshness);
-  const avgFreshness = freshnessVals.length ? (freshnessVals.reduce((a,b) => a+b, 0) / freshnessVals.length) : null;
-  const totalDevices = state.sensorDevices.length + state.camDevices.length;
+  const { groups, sensorDevices, camDevices } = state;
+  const alerts         = groups.filter(isGroupAlert).length;
+  const freshnessVals  = groups.filter(g => g.latest_freshness != null).map(g => g.latest_freshness);
+  const avgFreshness   = freshnessVals.length
+    ? freshnessVals.reduce((a, b) => a + b, 0) / freshnessVals.length
+    : null;
 
   document.getElementById('stat-groups').textContent    = groups.length;
-  document.getElementById('stat-devices').textContent   = totalDevices;
+  document.getElementById('stat-devices').textContent   = sensorDevices.length + camDevices.length;
   document.getElementById('stat-alerts').textContent    = alerts;
-  document.getElementById('stat-freshness').textContent = avgFreshness != null ? (avgFreshness * 100).toFixed(0) + '%' : '—';
+  document.getElementById('stat-freshness').textContent = avgFreshness != null
+    ? (avgFreshness * 100).toFixed(0) + '%' : '—';
 
   const grid = document.getElementById('groups-grid');
   if (groups.length === 0) {
-    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
-      <div class="empty-state-icon">🍌</div>
-      <h3>Nenhuma mesa criada</h3>
-      <p>Crie uma mesa para começar a monitorar seus produtos.</p>
-    </div>`;
+    grid.innerHTML = `
+      <div class="empty-state" style="grid-column:1/-1">
+        <div class="empty-state-icon">🍌</div>
+        <h3>Nenhuma mesa criada</h3>
+        <p>Crie uma mesa para começar a monitorar seus produtos.</p>
+      </div>`;
     return;
   }
-
-  grid.innerHTML = groups.map(g => renderGroupCard(g)).join('');
+  grid.innerHTML = groups.map(renderGroupCard).join('');
 }
 
 function isGroupAlert(g) {
   const prod = state.products.find(p => p.product_id === g.product_id);
   if (!prod) return false;
-  const tOk = g.latest_temperature == null || (g.latest_temperature >= prod.t_min && g.latest_temperature <= prod.t_max);
-  const hOk = g.latest_humidity    == null || (g.latest_humidity    >= prod.h_min && g.latest_humidity    <= prod.h_max);
+  const tOk = g.latest_temperature == null ||
+    (g.latest_temperature >= prod.t_min && g.latest_temperature <= prod.t_max);
+  const hOk = g.latest_humidity == null ||
+    (g.latest_humidity >= prod.h_min && g.latest_humidity <= prod.h_max);
   return !tOk || !hOk;
 }
 
 function freshnessColor(f) {
   if (f == null) return '#d1d5db';
-  if (f >= 0.75) return '#2e6e42';
-  if (f >= 0.45) return '#e8a020';
+  if (f >= 0.75)  return '#2e6e42';
+  if (f >= 0.45)  return '#e8a020';
   return '#d94f3d';
 }
 
 function freshnessLabel(f) {
-  if (f == null) return '—';
-  if (f >= 0.75) return 'Fresco';
-  if (f >= 0.45) return 'Atenção';
+  if (f == null) return 'Sem dados';
+  if (f >= 0.75)  return 'Fresco';
+  if (f >= 0.45)  return 'Atenção';
   return 'Crítico';
 }
 
 function renderGroupCard(g) {
-  const prod     = state.products.find(p => p.product_id === g.product_id);
-  const alert    = isGroupAlert(g);
-  const f        = g.latest_freshness;
-  const fPct     = f != null ? Math.round(f * 100) : null;
-  const fColor   = freshnessColor(f);
-  const fLabel   = freshnessLabel(f);
-  const badgeClass = f == null ? 'badge-gray' : f >= 0.75 ? 'badge-green' : f >= 0.45 ? 'badge-amber' : 'badge-red';
+  const prod       = state.products.find(p => p.product_id === g.product_id);
+  const alert      = isGroupAlert(g);
+  const f          = g.latest_freshness;
+  const fPct       = f != null ? Math.round(f * 100) : null;
+  const fColor     = freshnessColor(f);
+  const fLabel     = freshnessLabel(f);
+  const badgeClass = f == null ? 'badge-gray'
+    : f >= 0.75 ? 'badge-green'
+    : f >= 0.45 ? 'badge-amber'
+    : 'badge-red';
 
   const tClass = (() => {
     if (g.latest_temperature == null || !prod) return '';
     if (g.latest_temperature < prod.t_min || g.latest_temperature > prod.t_max) return 'metric-alert';
-    if (Math.abs(g.latest_temperature - ((prod.t_min + prod.t_max)/2)) > ((prod.t_max - prod.t_min) * 0.35)) return 'metric-warn';
+    const mid   = (prod.t_min + prod.t_max) / 2;
+    const range = (prod.t_max - prod.t_min) * 0.35;
+    if (Math.abs(g.latest_temperature - mid) > range) return 'metric-warn';
     return '';
   })();
 
@@ -1256,18 +1401,19 @@ function renderGroupCard(g) {
     return '';
   })();
 
-  const displayPrice    = g.display_price    != null ? `R$ ${g.display_price.toFixed(2)}`    : '—';
+  const displayPrice     = g.display_price     != null ? `R$ ${g.display_price.toFixed(2)}`     : '—';
   const recommendedPrice = g.recommended_price != null ? `R$ ${g.recommended_price.toFixed(2)}` : '—';
-  const hasNewPrice = g.recommended_price != null && g.display_price !== g.recommended_price;
+  const hasNewPrice      = g.recommended_price != null
+    && (g.display_price == null || Math.abs(g.display_price - g.recommended_price) > 0.001);
 
   return `
   <div class="group-card${alert ? ' alert' : ''}">
     <div class="group-card-header">
       <div>
-        <div class="group-card-title">
-          ${g.group_name}
+        <div class="group-card-title">${escHtml(g.group_name)}</div>
+        <div class="group-card-product">
+          ${prod ? escHtml(prod.product_name) + ' · ' + escHtml(prod.unit || '') : 'Sem produto'}
         </div>
-        <div class="group-card-product">${prod ? prod.product_name : 'Sem produto'} ${prod ? '· ' + prod.unit : ''}</div>
       </div>
       <span class="badge ${badgeClass}">${fLabel}</span>
     </div>
@@ -1305,7 +1451,10 @@ function renderGroupCard(g) {
           <div class="price-label">Preço sugerido</div>
           <div class="price-value">${recommendedPrice}</div>
         </div>
-        ${hasNewPrice ? `<button class="btn btn-amber" style="padding:6px 12px;font-size:12px" onclick="openApplyPrice('${g.group_id}')">Aplicar</button>` : ''}
+        ${hasNewPrice
+          ? `<button class="btn btn-amber" style="padding:6px 12px;font-size:12px"
+               onclick="openApplyPrice('${g.group_id}')">Aplicar</button>`
+          : ''}
       </div>
     </div>
     <div class="group-card-footer">
@@ -1314,105 +1463,140 @@ function renderGroupCard(g) {
         ${g.cam_device_id    ? `<span class="device-tag">📷 ${g.cam_device_id.slice(-6)}</span>`    : ''}
       </div>
       <div class="card-actions">
-        <button class="btn btn-ghost" style="font-size:12px;padding:4px 8px" onclick="openEditGroup('${g.group_id}')">✏️ Editar</button>
+        <button class="btn btn-ghost" style="font-size:12px;padding:4px 8px"
+          onclick="openEditGroup('${g.group_id}')">✏️ Editar</button>
       </div>
     </div>
   </div>`;
 }
 
 // ─────────────────────────────────────────────
-// RENDER GROUPS LIST (management tab)
+// RENDER — GROUPS LIST (management tab)
 // ─────────────────────────────────────────────
 function renderGroupsList() {
   const wrap = document.getElementById('groups-list-wrap');
   if (state.groups.length === 0) {
-    wrap.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🗂️</div><h3>Nenhuma mesa</h3><p>Crie sua primeira mesa.</p></div>`;
+    wrap.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">🗂️</div>
+        <h3>Nenhuma mesa</h3>
+        <p>Crie sua primeira mesa clicando em "+ Nova Mesa".</p>
+      </div>`;
     return;
   }
-  wrap.innerHTML = `<table style="width:100%;border-collapse:collapse;background:white;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-sm)">
-    <thead>
-      <tr style="background:var(--green-50);font-size:12px;font-weight:600;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em">
-        <th style="padding:12px 16px;text-align:left">Mesa</th>
-        <th style="padding:12px 16px;text-align:left">Produto</th>
-        <th style="padding:12px 16px;text-align:left">Sensor</th>
-        <th style="padding:12px 16px;text-align:left">Câmera</th>
-        <th style="padding:12px 16px;text-align:left">Frescor</th>
-        <th style="padding:12px 16px;text-align:right">Ações</th>
-      </tr>
-    </thead>
-    <tbody>
-      ${state.groups.map(g => {
-        const prod = state.products.find(p => p.product_id === g.product_id);
-        const fPct = g.latest_freshness != null ? Math.round(g.latest_freshness * 100) + '%' : '—';
-        return `<tr style="border-top:1px solid var(--gray-100);font-size:14px">
-          <td style="padding:12px 16px;font-weight:500;color:var(--green-900)">${g.group_name}</td>
-          <td style="padding:12px 16px;color:var(--gray-500)">${prod ? prod.product_name : '—'}</td>
-          <td style="padding:12px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gray-500)">${g.sensor_device_id || '—'}</td>
-          <td style="padding:12px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gray-500)">${g.cam_device_id || '—'}</td>
-          <td style="padding:12px 16px">${fPct}</td>
-          <td style="padding:12px 16px;text-align:right">
-            <button class="btn btn-secondary" style="font-size:12px;padding:5px 10px;margin-right:6px" onclick="openEditGroup('${g.group_id}')">Editar</button>
-            <button class="btn btn-danger" style="font-size:12px;padding:5px 10px" onclick="deleteGroup('${g.group_id}')">Excluir</button>
-          </td>
-        </tr>`;
-      }).join('')}
-    </tbody>
-  </table>`;
+
+  wrap.innerHTML = `
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Mesa</th>
+          <th>Produto</th>
+          <th>Sensor</th>
+          <th>Câmera</th>
+          <th>Frescor</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${state.groups.map(g => {
+          const prod = state.products.find(p => p.product_id === g.product_id);
+          const fPct = g.latest_freshness != null ? Math.round(g.latest_freshness * 100) + '%' : '—';
+          return `<tr>
+            <td style="font-weight:500;color:var(--green-900)">${escHtml(g.group_name)}</td>
+            <td style="color:var(--gray-500)">${prod ? escHtml(prod.product_name) : '—'}</td>
+            <td style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gray-500)">
+              ${g.sensor_device_id || '—'}
+            </td>
+            <td style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gray-500)">
+              ${g.cam_device_id || '—'}
+            </td>
+            <td>${fPct}</td>
+            <td>
+              <button class="btn btn-secondary" style="font-size:12px;padding:5px 10px;margin-right:6px"
+                onclick="openEditGroup('${g.group_id}')">Editar</button>
+              <button class="btn btn-danger" style="font-size:12px;padding:5px 10px"
+                onclick="deleteGroup('${g.group_id}')">Excluir</button>
+            </td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>`;
 }
 
 // ─────────────────────────────────────────────
-// RENDER DEVICES TAB
+// RENDER — DEVICES TAB
 // ─────────────────────────────────────────────
 function renderDevices() {
   const wrap = document.getElementById('devices-wrap');
   const allDevices = [
-    ...state.sensorDevices.map(d => ({ ...d, type: 'sensor', id: d.sensor_device_id })),
-    ...state.camDevices.map(d => ({ ...d, type: 'cam', id: d.cam_device_id })),
+    ...state.sensorDevices.map(d => ({ id: d.sensor_device_id, type: 'sensor', group_id: d.group_id })),
+    ...state.camDevices.map(d =>    ({ id: d.cam_device_id,    type: 'cam',    group_id: d.group_id })),
   ];
 
   if (allDevices.length === 0) {
-    wrap.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📡</div><h3>Nenhum dispositivo</h3><p>Dispositivos aparecem aqui após serem registrados e associados a uma mesa.</p></div>`;
+    wrap.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">📡</div>
+        <h3>Nenhum dispositivo registrado</h3>
+        <p>Registre um dispositivo para vinculá-lo a uma mesa.</p>
+      </div>`;
     return;
   }
 
-  const group = (id) => state.groups.find(g => g.sensor_device_id === id || g.cam_device_id === id);
+  const groupName = (groupId) => {
+    const g = state.groups.find(g => g.group_id === groupId);
+    return g ? escHtml(g.group_name) : '—';
+  };
 
-  wrap.innerHTML = `<table style="width:100%;border-collapse:collapse;background:white;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-sm)">
-    <thead>
-      <tr style="background:var(--green-50);font-size:12px;font-weight:600;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em">
-        <th style="padding:12px 16px;text-align:left">Dispositivo</th>
-        <th style="padding:12px 16px;text-align:left">Tipo</th>
-        <th style="padding:12px 16px;text-align:left">Mesa</th>
-        <th style="padding:12px 16px;text-align:right">Ações</th>
-      </tr>
-    </thead>
-    <tbody>
-      ${allDevices.map(d => {
-        const g = group(d.id);
-        const typeLabel = d.type === 'sensor' ? '📡 Sensor' : '📷 Câmera';
-        return `<tr style="border-top:1px solid var(--gray-100);font-size:14px">
-          <td style="padding:12px 16px;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--green-900)">${d.id}</td>
-          <td style="padding:12px 16px;color:var(--gray-500)">${typeLabel}</td>
-          <td style="padding:12px 16px;color:var(--gray-500)">${g ? g.group_name : '—'}</td>
-          <td style="padding:12px 16px;text-align:right">
-            <button class="btn btn-secondary" style="font-size:12px;padding:5px 10px" onclick="openDeviceConfig('${d.id}','${d.type}')">⚙️ Configurar</button>
-          </td>
-        </tr>`;
-      }).join('')}
-    </tbody>
-  </table>`;
+  wrap.innerHTML = `
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>ID (MAC)</th>
+          <th>Tipo</th>
+          <th>Mesa vinculada</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${allDevices.map(d => `
+          <tr>
+            <td style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--green-900)">
+              ${d.id}
+            </td>
+            <td style="color:var(--gray-500)">${d.type === 'sensor' ? '📡 Sensor' : '📷 Câmera'}</td>
+            <td style="color:var(--gray-500)">${groupName(d.group_id)}</td>
+            <td>
+              ${d.type === 'sensor'
+                ? `<button class="btn btn-secondary" style="font-size:12px;padding:5px 10px"
+                     onclick="openDeviceConfig('${d.id}','sensor')">⚙️ Configurar</button>`
+                : `<button class="btn btn-secondary" style="font-size:12px;padding:5px 10px"
+                     onclick="openDeviceConfig('${d.id}','cam')">⚙️ Configurar</button>`
+              }
+            </td>
+          </tr>`).join('')}
+      </tbody>
+    </table>`;
 }
 
 // ─────────────────────────────────────────────
 // TABS
 // ─────────────────────────────────────────────
-function setTab(name) {
-  document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
-  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-  document.getElementById(`tab-${name}`).style.display = 'block';
-  event.currentTarget.classList.add('active');
+function setTab(name, el) {
+  ['dashboard', 'groups', 'devices'].forEach(t => {
+    document.getElementById(`tab-${t}`).style.display = t === name ? 'block' : 'none';
+  });
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (el) el.classList.add('active');
+
   const titles = { dashboard: 'Painel', groups: 'Mesas', devices: 'Dispositivos' };
   document.getElementById('topbar-title').textContent = titles[name] || name;
+
+  // "Nova Mesa" button only visible on dashboard/groups tabs
+  document.getElementById('topbar-new-btn').style.display =
+    name === 'devices' ? 'none' : 'inline-flex';
+
+  state.currentTab = name;
 }
 
 // ─────────────────────────────────────────────
@@ -1420,11 +1604,11 @@ function setTab(name) {
 // ─────────────────────────────────────────────
 function openNewGroup() {
   document.getElementById('modal-group-title').textContent = 'Nova Mesa';
-  document.getElementById('group-edit-id').value = '';
-  document.getElementById('group-name-input').value = '';
-  document.getElementById('group-product-select').value = '';
-  document.getElementById('group-sensor-input').value = '';
-  document.getElementById('group-cam-input').value = '';
+  document.getElementById('group-edit-id').value           = '';
+  document.getElementById('group-name-input').value        = '';
+  document.getElementById('group-product-select').value    = '';
+  document.getElementById('group-sensor-input').value      = '';
+  document.getElementById('group-cam-input').value         = '';
   openModal('modal-group');
 }
 
@@ -1432,24 +1616,29 @@ function openEditGroup(groupId) {
   const g = state.groups.find(g => g.group_id === groupId);
   if (!g) return;
   document.getElementById('modal-group-title').textContent = 'Editar Mesa';
-  document.getElementById('group-edit-id').value = g.group_id;
-  document.getElementById('group-name-input').value = g.group_name;
-  document.getElementById('group-product-select').value = g.product_id || '';
-  document.getElementById('group-sensor-input').value = g.sensor_device_id || '';
-  document.getElementById('group-cam-input').value = g.cam_device_id || '';
+  document.getElementById('group-edit-id').value           = g.group_id;
+  document.getElementById('group-name-input').value        = g.group_name;
+  document.getElementById('group-product-select').value    = g.product_id || '';
+  document.getElementById('group-sensor-input').value      = g.sensor_device_id || '';
+  document.getElementById('group-cam-input').value         = g.cam_device_id || '';
   openModal('modal-group');
 }
 
 async function saveGroup() {
-  const id         = document.getElementById('group-edit-id').value;
-  const name       = document.getElementById('group-name-input').value.trim();
-  const productId  = document.getElementById('group-product-select').value;
-  const sensorId   = document.getElementById('group-sensor-input').value.trim().toUpperCase();
-  const camId      = document.getElementById('group-cam-input').value.trim().toUpperCase();
+  const id        = document.getElementById('group-edit-id').value;
+  const name      = document.getElementById('group-name-input').value.trim();
+  const productId = document.getElementById('group-product-select').value;
+  const sensorId  = document.getElementById('group-sensor-input').value.trim().toUpperCase();
+  const camId     = document.getElementById('group-cam-input').value.trim().toUpperCase();
+  const btn       = document.getElementById('btn-save-group');
 
-  if (!name) { showToast('Informe o nome da mesa.'); return; }
+  if (!name) { showToast('Informe o nome da mesa.', 'error'); return; }
+  if (!state.store) { showToast('Nenhuma loja encontrada.', 'error'); return; }
 
+  setLoading(btn, true, 'Salvando...');
   try {
+    let groupId = id;
+
     if (id) {
       await sb.update('groups', {
         group_name:       name,
@@ -1457,12 +1646,7 @@ async function saveGroup() {
         sensor_device_id: sensorId  || null,
         cam_device_id:    camId     || null,
       }, `group_id=eq.${id}`);
-
-      // Update device group associations
-      if (sensorId) await sb.update('sensor_devices', { group_id: id }, `sensor_device_id=eq.${sensorId}`);
-      if (camId)    await sb.update('cam_devices',    { group_id: id }, `cam_device_id=eq.${camId}`);
     } else {
-      if (!state.store) { showToast('Nenhuma loja encontrada.'); return; }
       const [newGroup] = await sb.insert('groups', {
         store_id:         state.store.store_id,
         group_name:       name,
@@ -1470,26 +1654,55 @@ async function saveGroup() {
         sensor_device_id: sensorId  || null,
         cam_device_id:    camId     || null,
       });
-      if (sensorId) await sb.update('sensor_devices', { group_id: newGroup.group_id, store_id: state.store.store_id }, `sensor_device_id=eq.${sensorId}`);
-      if (camId)    await sb.update('cam_devices',    { group_id: newGroup.group_id, store_id: state.store.store_id }, `cam_device_id=eq.${camId}`);
+      groupId = newGroup.group_id;
     }
+
+    // Link devices to group + store (upsert-safe: devices may not exist yet)
+    const deviceUpdates = [];
+    if (sensorId) {
+      deviceUpdates.push(
+        sb.upsert('sensor_devices',
+          { sensor_device_id: sensorId, group_id: groupId, store_id: state.store.store_id, led_flag: false },
+          'sensor_device_id'
+        )
+      );
+    }
+    if (camId) {
+      deviceUpdates.push(
+        sb.upsert('cam_devices',
+          { cam_device_id: camId, group_id: groupId, store_id: state.store.store_id },
+          'cam_device_id'
+        )
+      );
+    }
+    await Promise.all(deviceUpdates);
 
     closeModal('modal-group');
     showToast('Mesa salva com sucesso.');
     await refreshAll();
   } catch(e) {
-    showToast('Erro ao salvar: ' + e.message);
+    showToast('Erro ao salvar: ' + e.message, 'error');
+  } finally {
+    setLoading(btn, false, 'Salvar');
   }
 }
 
 async function deleteGroup(groupId) {
   if (!confirm('Excluir esta mesa? Os dados históricos não serão apagados.')) return;
   try {
+    // Unlink devices first
+    const g = state.groups.find(g => g.group_id === groupId);
+    const promises = [];
+    if (g?.sensor_device_id)
+      promises.push(sb.update('sensor_devices', { group_id: null }, `sensor_device_id=eq.${g.sensor_device_id}`));
+    if (g?.cam_device_id)
+      promises.push(sb.update('cam_devices', { group_id: null }, `cam_device_id=eq.${g.cam_device_id}`));
+    await Promise.all(promises);
     await sb.delete('groups', `group_id=eq.${groupId}`);
     showToast('Mesa excluída.');
     await refreshAll();
   } catch(e) {
-    showToast('Erro ao excluir: ' + e.message);
+    showToast('Erro ao excluir: ' + e.message, 'error');
   }
 }
 
@@ -1499,9 +1712,9 @@ async function deleteGroup(groupId) {
 function openApplyPrice(groupId) {
   const g = state.groups.find(g => g.group_id === groupId);
   if (!g) return;
-  document.getElementById('price-group-id').value   = groupId;
-  document.getElementById('price-group-name').textContent = g.group_name;
-  document.getElementById('modal-price-current').textContent   = g.display_price    != null ? `R$ ${g.display_price.toFixed(2)}`    : '—';
+  document.getElementById('price-group-id').value              = groupId;
+  document.getElementById('price-group-name').textContent      = g.group_name;
+  document.getElementById('modal-price-current').textContent   = g.display_price     != null ? `R$ ${g.display_price.toFixed(2)}`     : '—';
   document.getElementById('modal-price-suggested').textContent = g.recommended_price != null ? `R$ ${g.recommended_price.toFixed(2)}` : '—';
   openModal('modal-price');
 }
@@ -1511,19 +1724,20 @@ async function applyPrice() {
   const g = state.groups.find(g => g.group_id === groupId);
   if (!g || g.recommended_price == null) return;
 
+  const btn = document.getElementById('btn-apply-price');
+  setLoading(btn, true, 'Aplicando...');
   try {
     await sb.update('groups', { display_price: g.recommended_price }, `group_id=eq.${groupId}`);
-
-    // Send MQTT command to sensor device to update LCD
     if (g.sensor_device_id) {
       await sendMqttCommand(g.sensor_device_id, { price: g.recommended_price });
     }
-
     closeModal('modal-price');
     showToast(`Preço R$ ${g.recommended_price.toFixed(2)} aplicado.`);
     await refreshAll();
   } catch(e) {
-    showToast('Erro ao aplicar preço: ' + e.message);
+    showToast('Erro ao aplicar preço: ' + e.message, 'error');
+  } finally {
+    setLoading(btn, false, 'Aplicar preço');
   }
 }
 
@@ -1531,10 +1745,10 @@ async function applyPrice() {
 // MODAL: DEVICE CONFIG
 // ─────────────────────────────────────────────
 function openDeviceConfig(deviceId, type) {
-  document.getElementById('device-config-id').value   = deviceId;
-  document.getElementById('device-config-type').value = type;
-  document.getElementById('device-config-name').textContent = deviceId;
-  document.getElementById('device-sampling-input').value = type === 'cam' ? 30000 : 2000;
+  document.getElementById('device-config-id').value          = deviceId;
+  document.getElementById('device-config-type').value        = type;
+  document.getElementById('device-config-name').textContent  = deviceId;
+  document.getElementById('device-sampling-input').value     = type === 'cam' ? 30000 : 2000;
   document.getElementById('sensor-extra-config').style.display = type === 'sensor' ? 'block' : 'none';
   openModal('modal-device');
 }
@@ -1544,16 +1758,68 @@ async function saveDeviceConfig() {
   const type     = document.getElementById('device-config-type').value;
   const interval = parseInt(document.getElementById('device-sampling-input').value);
   const showData = document.getElementById('device-showdata-input').value === 'true';
+  const btn      = document.getElementById('btn-save-device');
+
+  if (!interval || interval < 1000) {
+    showToast('Intervalo inválido. Mínimo: 1000 ms.', 'error');
+    return;
+  }
 
   const cmd = { samplingInterval: interval };
   if (type === 'sensor') cmd.showsensordata = showData;
 
+  setLoading(btn, true, 'Enviando...');
   try {
     await sendMqttCommand(deviceId, cmd);
     closeModal('modal-device');
     showToast('Comando enviado ao dispositivo.');
   } catch(e) {
-    showToast('Erro ao enviar comando: ' + e.message);
+    showToast('Erro ao enviar comando: ' + e.message, 'error');
+  } finally {
+    setLoading(btn, false, 'Enviar comando');
+  }
+}
+
+// ─────────────────────────────────────────────
+// MODAL: REGISTER DEVICE
+// ─────────────────────────────────────────────
+function openRegisterDevice() {
+  document.getElementById('register-device-id').value   = '';
+  document.getElementById('register-device-type').value = 'sensor';
+  openModal('modal-register-device');
+}
+
+async function registerDevice() {
+  const type = document.getElementById('register-device-type').value;
+  const id   = document.getElementById('register-device-id').value.trim().toUpperCase();
+  const btn  = document.getElementById('btn-register-device');
+
+  if (!id || id.length !== 12) {
+    showToast('ID inválido. Deve ter 12 caracteres (MAC sem dois-pontos).', 'error');
+    return;
+  }
+  if (!state.store) { showToast('Nenhuma loja encontrada.', 'error'); return; }
+
+  setLoading(btn, true, 'Registrando...');
+  try {
+    if (type === 'sensor') {
+      await sb.upsert('sensor_devices',
+        { sensor_device_id: id, store_id: state.store.store_id, led_flag: false },
+        'sensor_device_id'
+      );
+    } else {
+      await sb.upsert('cam_devices',
+        { cam_device_id: id, store_id: state.store.store_id },
+        'cam_device_id'
+      );
+    }
+    closeModal('modal-register-device');
+    showToast('Dispositivo registrado com sucesso.');
+    await refreshAll();
+  } catch(e) {
+    showToast('Erro ao registrar: ' + e.message, 'error');
+  } finally {
+    setLoading(btn, false, 'Registrar');
   }
 }
 
@@ -1561,13 +1827,15 @@ async function saveDeviceConfig() {
 // MODAL: EDIT STORE
 // ─────────────────────────────────────────────
 function openEditStore() {
-  document.getElementById('store-name-input').value = state.store ? state.store.store_name : '';
+  document.getElementById('store-name-input').value = state.store?.store_name || '';
   openModal('modal-store');
 }
 
 async function saveStoreName() {
   const name = document.getElementById('store-name-input').value.trim();
+  const btn  = document.getElementById('btn-save-store');
   if (!name) return;
+  setLoading(btn, true, 'Salvando...');
   try {
     await sb.update('stores', { store_name: name }, `store_id=eq.${state.store.store_id}`);
     state.store.store_name = name;
@@ -1575,40 +1843,33 @@ async function saveStoreName() {
     closeModal('modal-store');
     showToast('Nome da loja atualizado.');
   } catch(e) {
-    showToast('Erro: ' + e.message);
+    showToast('Erro: ' + e.message, 'error');
+  } finally {
+    setLoading(btn, false, 'Salvar');
   }
 }
 
 // ─────────────────────────────────────────────
-// MQTT COMMAND (via backend endpoint)
+// MQTT COMMAND (via mqtt_pipeline /command)
 // ─────────────────────────────────────────────
 async function sendMqttCommand(deviceId, payload) {
-  try {
-    const res = await fetch(COMMAND_ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ device_id: deviceId, payload }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    log.info && log.info(`[MQTT CMD] ${deviceId}:`, payload);
-  } catch(e) {
-    console.error('[MQTT CMD] Failed:', e);
-    throw e;
+  const res = await fetch(COMMAND_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ device_id: deviceId, payload }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || `HTTP ${res.status}`);
   }
 }
 
 // ─────────────────────────────────────────────
 // MODAL HELPERS
 // ─────────────────────────────────────────────
-function openModal(id) {
-  document.getElementById(id).classList.add('open');
-}
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-function closeModal(id) {
-  document.getElementById(id).classList.remove('open');
-}
-
-// Close on overlay click
 document.querySelectorAll('.modal-overlay').forEach(overlay => {
   overlay.addEventListener('click', e => {
     if (e.target === overlay) overlay.classList.remove('open');
@@ -1619,12 +1880,38 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
 // TOAST
 // ─────────────────────────────────────────────
 let toastTimer;
-function showToast(msg) {
+function showToast(msg, type = 'success') {
   const el = document.getElementById('toast');
   el.textContent = msg;
-  el.classList.add('show');
+  el.className   = `show toast-${type}`;
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+  toastTimer = setTimeout(() => { el.className = ''; }, 3500);
+}
+
+// ─────────────────────────────────────────────
+// LOADING STATE HELPER
+// ─────────────────────────────────────────────
+function setLoading(btn, loading, label) {
+  if (!btn) return;
+  btn.disabled = loading;
+  if (loading) {
+    btn.dataset.originalText = btn.textContent;
+    btn.innerHTML = `<span class="spinner spinner-sm"></span> ${label}`;
+  } else {
+    btn.innerHTML = btn.dataset.originalText || label;
+  }
+}
+
+// ─────────────────────────────────────────────
+// UTILS
+// ─────────────────────────────────────────────
+function escHtml(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 </script>
 </body>
