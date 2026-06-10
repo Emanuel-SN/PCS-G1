@@ -109,8 +109,7 @@ def add_cors(response):
 @app.route("/command", methods=["OPTIONS"])
 def command_preflight():
     """Handle CORS preflight for /command."""
-    return "", 204
-git 
+    return "", 204 
 
 def run_web():
     port = int(os.getenv("PORT", 8080))
