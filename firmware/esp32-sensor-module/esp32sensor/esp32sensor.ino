@@ -41,7 +41,8 @@ Preferences      prefs;
 
 // ---------- declarations ----------
 void connectToWiFi();
-void connectToMQTT();
+bool connectToMQTT();
+void reconnectIfNeeded();
 void mqttCallback(char *topic, byte *payload, unsigned int length);
 String getTimestamp();
 void lcdStatus(String line1, String line2 = "");
@@ -147,31 +148,68 @@ String getTimestamp() {
   return String(buf);
 }
 
-void connectToMQTT() {
-  while (!mqtt_client.connected()) {
-    String client_id = "esp32-client-" + String(WiFi.macAddress());
-    lcdStatus("Connecting to", "MQTT broker...");
-    Serial.printf("Connecting to MQTT Broker as %s...\n", client_id.c_str());
-    if (mqtt_client.connect(client_id.c_str(), MQTT_USERNAME, MQTT_PASSWORD)) {
-      Serial.println("Connected to MQTT broker");
-      mqtt_client.subscribe((base_topic + "commands").c_str());
-      mqtt_client.subscribe("general");
+bool connectToMQTT() {
+  String client_id = "esp32-client-" + String(WiFi.macAddress());
+  lcdStatus("Connecting to", "MQTT broker...");
+  Serial.printf("Connecting to MQTT Broker as %s...\n", client_id.c_str());
 
-      String msg = "<<<<<<<<< ESP32 (" + device_id + ") ONLINE >>>>>>>>";
-      mqtt_client.publish("general", msg.c_str());
+  if (mqtt_client.connect(client_id.c_str(), MQTT_USERNAME, MQTT_PASSWORD)) {
+    Serial.println("Connected to MQTT broker");
+    mqtt_client.subscribe((base_topic + "commands").c_str());
+    mqtt_client.subscribe("general");
 
-      lcdStatus("MQTT connected!");
-      delay(1500);
-    } else {
+    String msg = "<<<<<<<<< ESP32 (" + device_id + ") ONLINE >>>>>>>>";
+    mqtt_client.publish("general", msg.c_str());
+
+    lcdStatus("MQTT connected!");
+    delay(1500);
+
+    // Restore price display
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("R$ ");
+    char buf[10];
+    dtostrf(price, 1, 2, buf);
+    lcd.print(buf);
+    return true;
+  }
+
+  Serial.print("MQTT failed, rc=");
+  Serial.println(mqtt_client.state());
+  lcdStatus("MQTT failed!", "rc=" + String(mqtt_client.state()));
+  return false;
+}
+
+void reconnectIfNeeded() {
+  // Step 1: fix WiFi if it dropped
+  if (WiFi.status() != WL_CONNECTED) {
+    lcdStatus("WiFi lost...", "Reconnecting");
+    Serial.println("WiFi lost, reconnecting...");
+    WiFi.disconnect();
+    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+
+    unsigned long start = millis();
+    while (WiFi.status() != WL_CONNECTED && millis() - start < 15000) {
       digitalWrite(LED_BUILTIN, HIGH);
-      Serial.print("Failed to connect to MQTT broker, rc=");
-      Serial.print(mqtt_client.state());
-      Serial.println(" Retrying in 5 seconds.");
-      lcdStatus("MQTT failed!", "rc=" + String(mqtt_client.state()));
-      delay(2500);
+      delay(200);
       digitalWrite(LED_BUILTIN, LOW);
-      delay(2500);
+      delay(200);
+      Serial.print(".");
     }
+
+    if (WiFi.status() != WL_CONNECTED) {
+      Serial.println("\nWiFi reconnect failed, will retry next loop");
+      lcdStatus("WiFi failed", "Retrying...");
+      delay(3000);
+      return;  // bail out, try again next loop iteration
+    }
+
+    Serial.println("\nWiFi reconnected");
+  }
+
+  // Step 2: fix MQTT if WiFi is up but MQTT dropped
+  if (!mqtt_client.connected()) {
+    connectToMQTT();  // single attempt; loop() will retry if it fails
   }
 }
 
@@ -213,15 +251,11 @@ void mqttCallback(char *topic, byte *payload, unsigned int length) {
 }
 
 void loop() {
-  if (!mqtt_client.connected()) {
-    connectToMQTT();
-    lcd.clear();
-    lcd.setCursor(0, 0);
-    lcd.print("R$ ");
-    char buf[10];
-    dtostrf(price, 1, 2, buf);
-    lcd.print(buf);
+  if (WiFi.status() != WL_CONNECTED || !mqtt_client.connected()) {
+    reconnectIfNeeded();
+    return;  // skip publishing this cycle, retry next iteration
   }
+
   mqtt_client.loop();
 
   if (millis() - lastPublish >= samplingInterval) {
