@@ -49,9 +49,9 @@ LABEL_RIPE     = "ripe"
 LABEL_OVERRIPE = "overripe"
 
 FRESHNESS_WEIGHTS = {
-    LABEL_UNRIPE:   0.3,
+    LABEL_UNRIPE:   0.5,
     LABEL_RIPE:     1.0,
-    LABEL_OVERRIPE: 0.0,
+    LABEL_OVERRIPE: 0.1,
 }
 
 # ----------------------------------------------------------------
