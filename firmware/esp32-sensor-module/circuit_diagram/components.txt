@@ -1,0 +1,15 @@
+### Sensor Node: Component Specifications
+
+The sensor node is built using the **ESP32 DevKit V1 development board**.
+This subsystem handles local climate monitoring, alert states, and a real-time status display.
+
+| Component                         | Visual Reference              |
+| :-------------------------------- | :---------------------------- |
+| **ESP32 DevKit V1**       (x1)    | Main Microcontroller Board    | 
+| **DHT11 Sensor**          (x1)    | Temperature & Humidity Sensor |
+| **LCD1602 Display**       (x1)    | 16x2 Character Screen         |
+| **Red LED**               (x1)    | Status Alert Indicator        | 
+| **220Ω Resistor**         (x2)    | Current-Limiting Resistors    |
+| **1kΩ Resistor**          (x1)    | Contrast Adjustment Element   | 
+| **10kΩ Resistor**         (x2)    | Pull-Up Resistors             | 
+| **Solderless Breadboard** (x1)    | Prototyping Base Layout       |

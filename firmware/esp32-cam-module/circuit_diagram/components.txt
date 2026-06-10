@@ -1,0 +1,11 @@
+### Camera Node: Component Specifications
+
+The camera node is built using the **ESP32-CAM AI-Thinker development kit**. 
+This subsystem is composed of three interconnected hardware components that handle image capture, processing, 
+and serial communication.
+
+| Component                             | Visual Reference                  |
+| :------------------------------------ | :-------------------------------- |
+| **ESP32-CAM Core Board**      (x1)    | Main PCB with Silver Shield       |
+| **OV3660 Camera Module**      (x1)    | Lens with Ribbon Cable            |
+| **ESP32-CAM-MB Programmer**   (x1)    | Base Board with Micro-USB Port    |

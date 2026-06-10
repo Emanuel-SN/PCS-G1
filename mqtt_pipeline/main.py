@@ -110,7 +110,7 @@ def add_cors(response):
 def command_preflight():
     """Handle CORS preflight for /command."""
     return "", 204
-
+git 
 
 def run_web():
     port = int(os.getenv("PORT", 8080))
