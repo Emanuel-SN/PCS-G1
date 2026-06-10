@@ -48,6 +48,7 @@ def run_web():
 # ----------------------------------------------------------------
 mqtt_client = None  # set in main()
 
+
 def compute_condition_factor(temperature, humidity, t_min, t_max, h_min, h_max) -> float:
     """
     Returns a factor between 0.5 and 1.0 based on how far
@@ -67,28 +68,31 @@ def compute_condition_factor(temperature, humidity, t_min, t_max, h_min, h_max) 
 def compute_price(base_price, freshness, condition_factor) -> float:
     """
     Price range: base_price (worst) to base_price + max_bonus (best).
-    max_bonus is set so that ideal conditions yield ~13.00.
+    max_bonus set so that ideal conditions yield ~13.00.
     """
     max_bonus = 9.0  # 4.00 + 9.00 = 13.00 at perfect conditions
     recommended = base_price + (max_bonus * freshness * condition_factor)
     return round(recommended, 2)
 
 
-def publish_flag(sensor_device_id: str, flag: bool):
-    """Push LED flag to the sensor device via MQTT."""
+def publish_commands(sensor_device_id: str, recommended_price: float, flag: bool):
+    """Push price and LED flag to the sensor device in a single MQTT message."""
     if mqtt_client and mqtt_client.is_connected():
-        topic = f"devices/{sensor_device_id}/commands"
-        payload = json.dumps({"flag": flag})
+        topic   = f"devices/{sensor_device_id}/commands"
+        payload = json.dumps({
+            "flag":  flag,
+            "price": recommended_price
+        })
         mqtt_client.publish(topic, payload)
-        log.info(f"Published flag={flag} to {topic}")
+        log.info(f"Published flag={flag}, price={recommended_price} to {topic}")
     else:
-        log.warning("MQTT client not connected, skipping flag publish")
+        log.warning("MQTT client not connected, skipping command publish")
 
 
 def run_price_optimization():
     log.info("Running price optimization cycle...")
 
-    # Fetch all groups that have a product and at least some data
+    # Fetch all groups that have a product assigned
     try:
         res = supabase.table("groups").select(
             "group_id, store_id, product_id, sensor_device_id, "
@@ -137,13 +141,14 @@ def run_price_optimization():
         h_out = humidity    is not None and h_min is not None and h_max is not None and not (h_min <= humidity    <= h_max)
         conditions_violated = t_out or h_out
 
-        condition_factor    = compute_condition_factor(temperature, humidity, t_min, t_max, h_min, h_max)
-        recommended_price   = compute_price(base_price, freshness, condition_factor)
+        condition_factor  = compute_condition_factor(temperature, humidity, t_min, t_max, h_min, h_max)
+        recommended_price = compute_price(base_price, freshness, condition_factor)
 
         log.info(
             f"Group {group_id}: freshness={freshness:.3f}, "
             f"condition_factor={condition_factor}, "
-            f"recommended_price={recommended_price}"
+            f"recommended_price={recommended_price}, "
+            f"conditions_violated={conditions_violated}"
         )
 
         # Insert into optimized_prices
@@ -167,9 +172,9 @@ def run_price_optimization():
         except Exception as e:
             log.error(f"Failed to update group recommended_price for {group_id}: {e}")
 
-        # Publish LED flag to sensor device if one is assigned
+        # Publish price and flag to sensor device
         if sensor_device_id:
-            publish_flag(sensor_device_id, conditions_violated)
+            publish_commands(sensor_device_id, recommended_price, conditions_violated)
 
     log.info("Price optimization cycle complete")
 
@@ -207,7 +212,7 @@ def main():
     threading.Thread(target=optimization_loop, daemon=True).start()
     log.info(f"Price optimization loop started (interval: {RUN_INTERVAL}s)")
 
-    # MQTT client for publishing flag commands
+    # MQTT client for publishing commands
     mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
     mqtt_client.username_pw_set(MQTT_USERNAME, MQTT_PASSWORD)
     mqtt_client.tls_set()
