@@ -1,0 +1,1631 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FreshTrack — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-900: #0f2818;
+    --green-800: #1a3d26;
+    --green-700: #245534;
+    --green-600: #2e6e42;
+    --green-400: #4fa866;
+    --green-200: #a8d5b5;
+    --green-100: #dff0e5;
+    --green-50:  #f2faf5;
+    --amber-500: #e8a020;
+    --amber-100: #fef3d0;
+    --red-500:   #d94f3d;
+    --red-100:   #fde8e5;
+    --cream:     #f8f5ef;
+    --white:     #ffffff;
+    --gray-700:  #374151;
+    --gray-500:  #6b7280;
+    --gray-300:  #d1d5db;
+    --gray-100:  #f3f4f6;
+    --shadow-sm: 0 1px 3px rgba(15,40,24,0.08);
+    --shadow-md: 0 4px 16px rgba(15,40,24,0.12);
+    --shadow-lg: 0 8px 32px rgba(15,40,24,0.16);
+    --radius:    12px;
+    --radius-sm: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--cream);
+    color: var(--gray-700);
+    min-height: 100vh;
+  }
+
+  /* ── LOGIN ── */
+  #login-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--green-900);
+    background-image: radial-gradient(ellipse at 60% 40%, #245534 0%, #0f2818 70%);
+  }
+
+  .login-card {
+    background: var(--white);
+    border-radius: 20px;
+    padding: 48px 40px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .login-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 32px;
+  }
+
+  .login-logo-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--green-700);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+  }
+
+  .login-logo-text {
+    font-family: 'DM Serif Display', serif;
+    font-size: 24px;
+    color: var(--green-900);
+  }
+
+  .login-card h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--green-900);
+    margin-bottom: 6px;
+  }
+
+  .login-card p {
+    font-size: 14px;
+    color: var(--gray-500);
+    margin-bottom: 28px;
+  }
+
+  .form-group {
+    margin-bottom: 16px;
+  }
+
+  .form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--gray-700);
+    margin-bottom: 6px;
+  }
+
+  .form-group input, .form-group select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--gray-300);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    color: var(--gray-700);
+    background: var(--white);
+    transition: border-color 0.15s;
+    outline: none;
+  }
+
+  .form-group input:focus, .form-group select:focus {
+    border-color: var(--green-600);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+  }
+
+  .btn-primary {
+    background: var(--green-700);
+    color: var(--white);
+    width: 100%;
+    justify-content: center;
+    padding: 12px;
+    font-size: 15px;
+  }
+
+  .btn-primary:hover { background: var(--green-800); }
+
+  .btn-secondary {
+    background: var(--green-50);
+    color: var(--green-700);
+    border: 1.5px solid var(--green-200);
+  }
+
+  .btn-secondary:hover { background: var(--green-100); }
+
+  .btn-amber {
+    background: var(--amber-500);
+    color: var(--white);
+  }
+
+  .btn-amber:hover { background: #c98a18; }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--gray-500);
+    padding: 6px 10px;
+  }
+
+  .btn-ghost:hover { background: var(--gray-100); color: var(--gray-700); }
+
+  .btn-danger {
+    background: var(--red-100);
+    color: var(--red-500);
+    border: 1.5px solid #f5c6c1;
+  }
+
+  .btn-danger:hover { background: #fbd5d1; }
+
+  .login-error {
+    background: var(--red-100);
+    color: var(--red-500);
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    margin-bottom: 16px;
+    display: none;
+  }
+
+  /* ── APP ── */
+  #app { display: none; min-height: 100vh; }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    width: 240px;
+    height: 100vh;
+    background: var(--green-900);
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+  }
+
+  .sidebar-header {
+    padding: 24px 20px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .sidebar-logo-icon {
+    width: 34px;
+    height: 34px;
+    background: var(--green-600);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+
+  .sidebar-logo-text {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    color: var(--white);
+  }
+
+  .sidebar-store {
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .sidebar-store-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--green-200);
+    margin-bottom: 4px;
+  }
+
+  .sidebar-store-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+  }
+
+  .sidebar-store-name:hover { color: var(--green-200); }
+
+  .sidebar-nav {
+    flex: 1;
+    padding: 12px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    color: rgba(255,255,255,0.65);
+    cursor: pointer;
+    transition: all 0.15s;
+    text-decoration: none;
+  }
+
+  .nav-item:hover { background: rgba(255,255,255,0.06); color: var(--white); }
+  .nav-item.active { background: var(--green-700); color: var(--white); }
+
+  .sidebar-footer {
+    padding: 16px 20px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .user-avatar {
+    width: 32px;
+    height: 32px;
+    background: var(--green-600);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--white);
+  }
+
+  .user-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--white);
+    flex: 1;
+  }
+
+  .logout-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: rgba(255,255,255,0.5);
+    font-size: 16px;
+    padding: 4px;
+    border-radius: 4px;
+    transition: color 0.15s;
+  }
+
+  .logout-btn:hover { color: var(--white); }
+
+  /* ── MAIN ── */
+  .main {
+    margin-left: 240px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .topbar {
+    background: var(--white);
+    border-bottom: 1px solid var(--gray-300);
+    padding: 0 32px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .topbar-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--green-900);
+  }
+
+  .topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .content {
+    flex: 1;
+    padding: 28px 32px;
+  }
+
+  /* ── STAT CARDS ── */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .stat-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-100);
+  }
+
+  .stat-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--gray-500);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+  }
+
+  .stat-value {
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--green-900);
+    font-family: 'DM Serif Display', serif;
+  }
+
+  .stat-sub {
+    font-size: 12px;
+    color: var(--gray-500);
+    margin-top: 4px;
+  }
+
+  /* ── SECTION HEADER ── */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--green-900);
+  }
+
+  /* ── GROUP CARDS ── */
+  .groups-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 20px;
+  }
+
+  .group-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-100);
+    overflow: hidden;
+    transition: box-shadow 0.15s;
+  }
+
+  .group-card:hover { box-shadow: var(--shadow-md); }
+
+  .group-card.alert { border-color: #f5c6c1; }
+
+  .group-card-header {
+    padding: 16px 20px 12px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--gray-100);
+  }
+
+  .group-card-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--green-900);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .group-card-product {
+    font-size: 12px;
+    color: var(--gray-500);
+    margin-top: 2px;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  .badge-green { background: var(--green-100); color: var(--green-700); }
+  .badge-amber { background: var(--amber-100); color: #a06b0a; }
+  .badge-red   { background: var(--red-100);   color: var(--red-500); }
+  .badge-gray  { background: var(--gray-100);  color: var(--gray-500); }
+
+  .group-card-body {
+    padding: 16px 20px;
+  }
+
+  .metrics-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .metric {
+    text-align: center;
+  }
+
+  .metric-value {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--green-900);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .metric-label {
+    font-size: 11px;
+    color: var(--gray-500);
+    margin-top: 2px;
+  }
+
+  .metric-alert .metric-value { color: var(--red-500); }
+  .metric-warn  .metric-value { color: var(--amber-500); }
+
+  .freshness-bar-wrap {
+    margin-bottom: 16px;
+  }
+
+  .freshness-bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--gray-500);
+    margin-bottom: 6px;
+  }
+
+  .freshness-bar {
+    height: 8px;
+    background: var(--gray-100);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .freshness-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.4s;
+  }
+
+  .price-section {
+    background: var(--green-50);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .price-block { text-align: center; }
+
+  .price-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--gray-500);
+    margin-bottom: 2px;
+  }
+
+  .price-value {
+    font-size: 18px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--green-900);
+  }
+
+  .price-suggested .price-value { color: var(--green-600); }
+
+  .price-arrow {
+    font-size: 18px;
+    color: var(--gray-300);
+  }
+
+  .group-card-footer {
+    padding: 12px 20px;
+    border-top: 1px solid var(--gray-100);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .device-ids {
+    display: flex;
+    gap: 8px;
+  }
+
+  .device-tag {
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--gray-500);
+    background: var(--gray-100);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  .card-actions {
+    display: flex;
+    gap: 6px;
+  }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15,40,24,0.5);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+
+  .modal-overlay.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .modal {
+    background: var(--white);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 480px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-lg);
+    transform: translateY(8px);
+    transition: transform 0.2s;
+  }
+
+  .modal-overlay.open .modal { transform: translateY(0); }
+
+  .modal-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--gray-100);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .modal-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--green-900);
+  }
+
+  .modal-body {
+    padding: 20px 24px;
+  }
+
+  .modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--gray-100);
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+  }
+
+  .close-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: var(--gray-500);
+    line-height: 1;
+    padding: 2px;
+  }
+
+  .close-btn:hover { color: var(--gray-700); }
+
+  /* ── TABS ── */
+  .tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid var(--gray-100);
+    margin-bottom: 20px;
+  }
+
+  .tab {
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--gray-500);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.15s;
+  }
+
+  .tab:hover { color: var(--green-700); }
+  .tab.active { color: var(--green-700); border-bottom-color: var(--green-700); }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── TOAST ── */
+  #toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--green-900);
+    color: var(--white);
+    padding: 12px 18px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    z-index: 999;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.25s;
+    pointer-events: none;
+  }
+
+  #toast.show {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--gray-500);
+  }
+
+  .empty-state-icon { font-size: 48px; margin-bottom: 12px; }
+  .empty-state h3 { font-size: 16px; font-weight: 600; color: var(--gray-700); margin-bottom: 6px; }
+  .empty-state p { font-size: 14px; }
+
+  /* ── DIVIDER ── */
+  .divider { height: 1px; background: var(--gray-100); margin: 16px 0; }
+
+  /* ── INLINE EDIT ── */
+  .inline-edit {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+  }
+
+  .inline-edit:hover .edit-icon { opacity: 1; }
+
+  .edit-icon {
+    opacity: 0;
+    font-size: 12px;
+    color: var(--gray-500);
+    transition: opacity 0.15s;
+  }
+
+  /* ── LOADING ── */
+  .spinner {
+    width: 20px; height: 20px;
+    border: 2px solid var(--green-200);
+    border-top-color: var(--green-700);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: inline-block;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-overlay {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon">🌿</div>
+      <span class="login-logo-text">FreshTrack</span>
+    </div>
+    <h2>Bem-vindo de volta</h2>
+    <p>Entre com suas credenciais para acessar o painel.</p>
+    <div class="login-error" id="login-error">Usuário ou senha incorretos.</div>
+    <div class="form-group">
+      <label>Usuário</label>
+      <input type="text" id="login-username" placeholder="seu_usuario" autocomplete="username">
+    </div>
+    <div class="form-group">
+      <label>Senha</label>
+      <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="btn btn-primary" onclick="doLogin()" id="login-btn">Entrar</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">🌿</div>
+        <span class="sidebar-logo-text">FreshTrack</span>
+      </div>
+    </div>
+    <div class="sidebar-store">
+      <div class="sidebar-store-label">Loja ativa</div>
+      <div class="sidebar-store-name inline-edit" onclick="openEditStore()">
+        <span id="store-name-display">—</span>
+        <span class="edit-icon">✏️</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item active" onclick="setTab('dashboard')">
+        <span>📊</span> Painel
+      </div>
+      <div class="nav-item" onclick="setTab('groups')">
+        <span>🗂️</span> Mesas
+      </div>
+      <div class="nav-item" onclick="setTab('devices')">
+        <span>📡</span> Dispositivos
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="user-avatar">—</div>
+        <span class="user-name" id="user-name-display">—</span>
+        <button class="logout-btn" onclick="doLogout()" title="Sair">↩</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <span class="topbar-title" id="topbar-title">Painel</span>
+      <div class="topbar-actions">
+        <button class="btn btn-secondary" onclick="refreshAll()">↻ Atualizar</button>
+        <button class="btn btn-primary" onclick="openNewGroup()">+ Nova Mesa</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- DASHBOARD TAB -->
+      <div id="tab-dashboard" class="tab-content">
+        <div class="stats-row" id="stats-row">
+          <div class="stat-card">
+            <div class="stat-label">Mesas ativas</div>
+            <div class="stat-value" id="stat-groups">—</div>
+            <div class="stat-sub">grupos monitorados</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Dispositivos online</div>
+            <div class="stat-value" id="stat-devices">—</div>
+            <div class="stat-sub">sensores + câmeras</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Alertas ativos</div>
+            <div class="stat-value" id="stat-alerts" style="color:var(--red-500)">—</div>
+            <div class="stat-sub">condições fora do limite</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Frescor médio</div>
+            <div class="stat-value" id="stat-freshness">—</div>
+            <div class="stat-sub">índice ponderado</div>
+          </div>
+        </div>
+
+        <div class="section-header">
+          <span class="section-title">Mesas</span>
+        </div>
+        <div class="groups-grid" id="groups-grid">
+          <div class="loading-overlay"><div class="spinner"></div></div>
+        </div>
+      </div>
+
+      <!-- GROUPS TAB -->
+      <div id="tab-groups" class="tab-content" style="display:none">
+        <div class="section-header">
+          <span class="section-title">Gerenciar Mesas</span>
+          <button class="btn btn-primary" onclick="openNewGroup()">+ Nova Mesa</button>
+        </div>
+        <div id="groups-list-wrap">
+          <div class="loading-overlay"><div class="spinner"></div></div>
+        </div>
+      </div>
+
+      <!-- DEVICES TAB -->
+      <div id="tab-devices" class="tab-content" style="display:none">
+        <div class="section-header">
+          <span class="section-title">Dispositivos</span>
+        </div>
+        <div id="devices-wrap">
+          <div class="loading-overlay"><div class="spinner"></div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- MODAL: NEW / EDIT GROUP -->
+<div class="modal-overlay" id="modal-group">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-group-title">Nova Mesa</span>
+      <button class="close-btn" onclick="closeModal('modal-group')">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="group-edit-id">
+      <div class="form-group">
+        <label>Nome da mesa</label>
+        <input type="text" id="group-name-input" placeholder="ex: Bancada Frutas A">
+      </div>
+      <div class="form-group">
+        <label>Produto</label>
+        <select id="group-product-select">
+          <option value="">— Selecionar produto —</option>
+        </select>
+      </div>
+      <div class="divider"></div>
+      <div class="form-group">
+        <label>ID do sensor (MAC)</label>
+        <input type="text" id="group-sensor-input" placeholder="ex: 246F28AA3B12" style="font-family:'JetBrains Mono',monospace;font-size:13px">
+      </div>
+      <div class="form-group">
+        <label>ID da câmera (MAC)</label>
+        <input type="text" id="group-cam-input" placeholder="ex: E08CFEB64B2C" style="font-family:'JetBrains Mono',monospace;font-size:13px">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-group')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveGroup()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: APPLY PRICE -->
+<div class="modal-overlay" id="modal-price">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Aplicar Preço Sugerido</span>
+      <button class="close-btn" onclick="closeModal('modal-price')">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="price-group-id">
+      <p style="font-size:14px;color:var(--gray-500);margin-bottom:20px">
+        Confirme a alteração de preço para a mesa <strong id="price-group-name"></strong>.
+      </p>
+      <div style="display:flex;gap:16px;justify-content:center;align-items:center;padding:20px;background:var(--green-50);border-radius:var(--radius-sm)">
+        <div class="price-block" style="text-align:center">
+          <div class="price-label">Preço atual</div>
+          <div class="price-value" id="modal-price-current" style="font-size:24px;font-family:'JetBrains Mono',monospace;color:var(--gray-700)">—</div>
+        </div>
+        <div style="font-size:24px;color:var(--green-400)">→</div>
+        <div class="price-block" style="text-align:center">
+          <div class="price-label">Preço sugerido</div>
+          <div class="price-value" id="modal-price-suggested" style="font-size:24px;font-family:'JetBrains Mono',monospace;color:var(--green-700)">—</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-price')">Cancelar</button>
+      <button class="btn btn-amber" onclick="applyPrice()">Aplicar preço</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: DEVICE CONFIG -->
+<div class="modal-overlay" id="modal-device">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Configurar Dispositivo</span>
+      <button class="close-btn" onclick="closeModal('modal-device')">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="device-config-id">
+      <input type="hidden" id="device-config-type">
+      <p style="font-size:13px;color:var(--gray-500);margin-bottom:16px">
+        Dispositivo: <span id="device-config-name" style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gray-700)"></span>
+      </p>
+      <div class="form-group">
+        <label>Intervalo de captura (ms)</label>
+        <input type="number" id="device-sampling-input" placeholder="30000" min="5000" step="1000">
+        <p style="font-size:11px;color:var(--gray-500);margin-top:4px">Mínimo recomendado: 10000ms (10s)</p>
+      </div>
+      <div id="sensor-extra-config">
+        <div class="divider"></div>
+        <div class="form-group">
+          <label>Mostrar dados no LCD</label>
+          <select id="device-showdata-input">
+            <option value="true">Sim</option>
+            <option value="false">Não</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-device')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveDeviceConfig()">Enviar comando</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: EDIT STORE -->
+<div class="modal-overlay" id="modal-store">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Editar nome da loja</span>
+      <button class="close-btn" onclick="closeModal('modal-store')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Nome da loja</label>
+        <input type="text" id="store-name-input" placeholder="Nome da sua loja">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-store')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveStoreName()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// CONFIG — replace with your Supabase details
+// ─────────────────────────────────────────────
+const SUPABASE_URL = 'https://monenhojbtwdmauabpsk.supabase.co';
+const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY_HERE';
+
+// MQTT command endpoint — calls your backend to publish
+// For now commands are sent via a simple REST call to your mqtt_pipeline
+// You'll need to add a /command endpoint to mqtt_pipeline, OR use Supabase realtime triggers
+// For MVP we'll publish via a small fetch to a command endpoint
+const COMMAND_ENDPOINT = 'https://YOUR-MQTT-PIPELINE.railway.app/command'; // replace with your Railway URL
+
+// ─────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────
+let state = {
+  user: null,
+  store: null,
+  groups: [],
+  products: [],
+  sensorDevices: [],
+  camDevices: [],
+};
+
+// ─────────────────────────────────────────────
+// SUPABASE HELPERS
+// ─────────────────────────────────────────────
+async function sbFetch(path, options = {}) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    ...options,
+    headers: {
+      'apikey': SUPABASE_ANON_KEY,
+      'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': options.prefer || '',
+      ...(options.headers || {}),
+    },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || res.statusText);
+  }
+  if (res.status === 204) return null;
+  return res.json();
+}
+
+const sb = {
+  select: (table, query = '*', filters = '') =>
+    sbFetch(`${table}?select=${encodeURIComponent(query)}${filters ? '&' + filters : ''}`),
+  insert: (table, data) =>
+    sbFetch(`${table}`, { method: 'POST', body: JSON.stringify(data), prefer: 'return=representation' }),
+  update: (table, data, filter) =>
+    sbFetch(`${table}?${filter}`, { method: 'PATCH', body: JSON.stringify(data), prefer: 'return=representation' }),
+  delete: (table, filter) =>
+    sbFetch(`${table}?${filter}`, { method: 'DELETE' }),
+};
+
+// ─────────────────────────────────────────────
+// AUTH
+// ─────────────────────────────────────────────
+async function doLogin() {
+  const username = document.getElementById('login-username').value.trim();
+  const password = document.getElementById('login-password').value;
+  if (!username || !password) return;
+
+  const btn = document.getElementById('login-btn');
+  btn.textContent = 'Entrando...';
+  btn.disabled = true;
+
+  try {
+    const users = await sb.select('users', 'user_id,username', `username=eq.${encodeURIComponent(username)}&password=eq.${encodeURIComponent(password)}`);
+    if (!users || users.length === 0) {
+      document.getElementById('login-error').style.display = 'block';
+      return;
+    }
+    state.user = users[0];
+    document.getElementById('login-error').style.display = 'none';
+    await loadApp();
+  } catch(e) {
+    document.getElementById('login-error').textContent = 'Erro ao conectar. Tente novamente.';
+    document.getElementById('login-error').style.display = 'block';
+  } finally {
+    btn.textContent = 'Entrar';
+    btn.disabled = false;
+  }
+}
+
+function doLogout() {
+  state = { user: null, store: null, groups: [], products: [], sensorDevices: [], camDevices: [] };
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('login-password').value = '';
+}
+
+document.getElementById('login-password').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+
+// ─────────────────────────────────────────────
+// APP INIT
+// ─────────────────────────────────────────────
+async function loadApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+
+  const initials = state.user.username.slice(0, 2).toUpperCase();
+  document.getElementById('user-avatar').textContent = initials;
+  document.getElementById('user-name-display').textContent = state.user.username;
+
+  await loadStore();
+  await refreshAll();
+}
+
+async function loadStore() {
+  const stores = await sb.select('stores', 'store_id,store_name', `user_id=eq.${state.user.user_id}`);
+  if (stores && stores.length > 0) {
+    state.store = stores[0];
+    document.getElementById('store-name-display').textContent = state.store.store_name;
+  }
+}
+
+async function refreshAll() {
+  await Promise.all([
+    loadGroups(),
+    loadProducts(),
+    loadDevices(),
+  ]);
+  renderDashboard();
+  renderGroupsList();
+  renderDevices();
+}
+
+// ─────────────────────────────────────────────
+// DATA LOADERS
+// ─────────────────────────────────────────────
+async function loadGroups() {
+  if (!state.store) return;
+  state.groups = await sb.select('groups',
+    'group_id,group_name,product_id,sensor_device_id,cam_device_id,latest_temperature,latest_humidity,latest_freshness,display_price,recommended_price',
+    `store_id=eq.${state.store.store_id}`
+  ) || [];
+}
+
+async function loadProducts() {
+  state.products = await sb.select('product_info', 'product_id,product_name,t_min,t_max,h_min,h_max,base_price,unit') || [];
+  const sel = document.getElementById('group-product-select');
+  sel.innerHTML = '<option value="">— Selecionar produto —</option>';
+  state.products.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.product_id;
+    opt.textContent = p.product_name;
+    sel.appendChild(opt);
+  });
+}
+
+async function loadDevices() {
+  if (!state.store) return;
+  state.sensorDevices = await sb.select('sensor_devices', 'sensor_device_id,group_id,led_flag', `store_id=eq.${state.store.store_id}`) || [];
+  state.camDevices    = await sb.select('cam_devices',    'cam_device_id,group_id',              `store_id=eq.${state.store.store_id}`) || [];
+}
+
+// ─────────────────────────────────────────────
+// RENDER DASHBOARD
+// ─────────────────────────────────────────────
+function renderDashboard() {
+  const groups = state.groups;
+  const alerts = groups.filter(g => isGroupAlert(g)).length;
+  const freshnessVals = groups.filter(g => g.latest_freshness != null).map(g => g.latest_freshness);
+  const avgFreshness = freshnessVals.length ? (freshnessVals.reduce((a,b) => a+b, 0) / freshnessVals.length) : null;
+  const totalDevices = state.sensorDevices.length + state.camDevices.length;
+
+  document.getElementById('stat-groups').textContent    = groups.length;
+  document.getElementById('stat-devices').textContent   = totalDevices;
+  document.getElementById('stat-alerts').textContent    = alerts;
+  document.getElementById('stat-freshness').textContent = avgFreshness != null ? (avgFreshness * 100).toFixed(0) + '%' : '—';
+
+  const grid = document.getElementById('groups-grid');
+  if (groups.length === 0) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+      <div class="empty-state-icon">🍌</div>
+      <h3>Nenhuma mesa criada</h3>
+      <p>Crie uma mesa para começar a monitorar seus produtos.</p>
+    </div>`;
+    return;
+  }
+
+  grid.innerHTML = groups.map(g => renderGroupCard(g)).join('');
+}
+
+function isGroupAlert(g) {
+  const prod = state.products.find(p => p.product_id === g.product_id);
+  if (!prod) return false;
+  const tOk = g.latest_temperature == null || (g.latest_temperature >= prod.t_min && g.latest_temperature <= prod.t_max);
+  const hOk = g.latest_humidity    == null || (g.latest_humidity    >= prod.h_min && g.latest_humidity    <= prod.h_max);
+  return !tOk || !hOk;
+}
+
+function freshnessColor(f) {
+  if (f == null) return '#d1d5db';
+  if (f >= 0.75) return '#2e6e42';
+  if (f >= 0.45) return '#e8a020';
+  return '#d94f3d';
+}
+
+function freshnessLabel(f) {
+  if (f == null) return '—';
+  if (f >= 0.75) return 'Fresco';
+  if (f >= 0.45) return 'Atenção';
+  return 'Crítico';
+}
+
+function renderGroupCard(g) {
+  const prod     = state.products.find(p => p.product_id === g.product_id);
+  const alert    = isGroupAlert(g);
+  const f        = g.latest_freshness;
+  const fPct     = f != null ? Math.round(f * 100) : null;
+  const fColor   = freshnessColor(f);
+  const fLabel   = freshnessLabel(f);
+  const badgeClass = f == null ? 'badge-gray' : f >= 0.75 ? 'badge-green' : f >= 0.45 ? 'badge-amber' : 'badge-red';
+
+  const tClass = (() => {
+    if (g.latest_temperature == null || !prod) return '';
+    if (g.latest_temperature < prod.t_min || g.latest_temperature > prod.t_max) return 'metric-alert';
+    if (Math.abs(g.latest_temperature - ((prod.t_min + prod.t_max)/2)) > ((prod.t_max - prod.t_min) * 0.35)) return 'metric-warn';
+    return '';
+  })();
+
+  const hClass = (() => {
+    if (g.latest_humidity == null || !prod) return '';
+    if (g.latest_humidity < prod.h_min || g.latest_humidity > prod.h_max) return 'metric-alert';
+    return '';
+  })();
+
+  const displayPrice    = g.display_price    != null ? `R$ ${g.display_price.toFixed(2)}`    : '—';
+  const recommendedPrice = g.recommended_price != null ? `R$ ${g.recommended_price.toFixed(2)}` : '—';
+  const hasNewPrice = g.recommended_price != null && g.display_price !== g.recommended_price;
+
+  return `
+  <div class="group-card${alert ? ' alert' : ''}">
+    <div class="group-card-header">
+      <div>
+        <div class="group-card-title">
+          ${g.group_name}
+        </div>
+        <div class="group-card-product">${prod ? prod.product_name : 'Sem produto'} ${prod ? '· ' + prod.unit : ''}</div>
+      </div>
+      <span class="badge ${badgeClass}">${fLabel}</span>
+    </div>
+    <div class="group-card-body">
+      <div class="metrics-row">
+        <div class="metric ${tClass}">
+          <div class="metric-value">${g.latest_temperature != null ? g.latest_temperature.toFixed(1) + '°' : '—'}</div>
+          <div class="metric-label">Temperatura</div>
+        </div>
+        <div class="metric ${hClass}">
+          <div class="metric-value">${g.latest_humidity != null ? g.latest_humidity.toFixed(0) + '%' : '—'}</div>
+          <div class="metric-label">Umidade</div>
+        </div>
+        <div class="metric">
+          <div class="metric-value">${fPct != null ? fPct + '%' : '—'}</div>
+          <div class="metric-label">Frescor</div>
+        </div>
+      </div>
+      <div class="freshness-bar-wrap">
+        <div class="freshness-bar-label">
+          <span>Índice de frescor</span>
+          <span>${fPct != null ? fPct + '%' : 'sem dados'}</span>
+        </div>
+        <div class="freshness-bar">
+          <div class="freshness-bar-fill" style="width:${fPct ?? 0}%;background:${fColor}"></div>
+        </div>
+      </div>
+      <div class="price-section">
+        <div class="price-block">
+          <div class="price-label">Preço exibido</div>
+          <div class="price-value">${displayPrice}</div>
+        </div>
+        <div class="price-arrow">→</div>
+        <div class="price-block price-suggested">
+          <div class="price-label">Preço sugerido</div>
+          <div class="price-value">${recommendedPrice}</div>
+        </div>
+        ${hasNewPrice ? `<button class="btn btn-amber" style="padding:6px 12px;font-size:12px" onclick="openApplyPrice('${g.group_id}')">Aplicar</button>` : ''}
+      </div>
+    </div>
+    <div class="group-card-footer">
+      <div class="device-ids">
+        ${g.sensor_device_id ? `<span class="device-tag">📡 ${g.sensor_device_id.slice(-6)}</span>` : ''}
+        ${g.cam_device_id    ? `<span class="device-tag">📷 ${g.cam_device_id.slice(-6)}</span>`    : ''}
+      </div>
+      <div class="card-actions">
+        <button class="btn btn-ghost" style="font-size:12px;padding:4px 8px" onclick="openEditGroup('${g.group_id}')">✏️ Editar</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ─────────────────────────────────────────────
+// RENDER GROUPS LIST (management tab)
+// ─────────────────────────────────────────────
+function renderGroupsList() {
+  const wrap = document.getElementById('groups-list-wrap');
+  if (state.groups.length === 0) {
+    wrap.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🗂️</div><h3>Nenhuma mesa</h3><p>Crie sua primeira mesa.</p></div>`;
+    return;
+  }
+  wrap.innerHTML = `<table style="width:100%;border-collapse:collapse;background:white;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-sm)">
+    <thead>
+      <tr style="background:var(--green-50);font-size:12px;font-weight:600;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em">
+        <th style="padding:12px 16px;text-align:left">Mesa</th>
+        <th style="padding:12px 16px;text-align:left">Produto</th>
+        <th style="padding:12px 16px;text-align:left">Sensor</th>
+        <th style="padding:12px 16px;text-align:left">Câmera</th>
+        <th style="padding:12px 16px;text-align:left">Frescor</th>
+        <th style="padding:12px 16px;text-align:right">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${state.groups.map(g => {
+        const prod = state.products.find(p => p.product_id === g.product_id);
+        const fPct = g.latest_freshness != null ? Math.round(g.latest_freshness * 100) + '%' : '—';
+        return `<tr style="border-top:1px solid var(--gray-100);font-size:14px">
+          <td style="padding:12px 16px;font-weight:500;color:var(--green-900)">${g.group_name}</td>
+          <td style="padding:12px 16px;color:var(--gray-500)">${prod ? prod.product_name : '—'}</td>
+          <td style="padding:12px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gray-500)">${g.sensor_device_id || '—'}</td>
+          <td style="padding:12px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gray-500)">${g.cam_device_id || '—'}</td>
+          <td style="padding:12px 16px">${fPct}</td>
+          <td style="padding:12px 16px;text-align:right">
+            <button class="btn btn-secondary" style="font-size:12px;padding:5px 10px;margin-right:6px" onclick="openEditGroup('${g.group_id}')">Editar</button>
+            <button class="btn btn-danger" style="font-size:12px;padding:5px 10px" onclick="deleteGroup('${g.group_id}')">Excluir</button>
+          </td>
+        </tr>`;
+      }).join('')}
+    </tbody>
+  </table>`;
+}
+
+// ─────────────────────────────────────────────
+// RENDER DEVICES TAB
+// ─────────────────────────────────────────────
+function renderDevices() {
+  const wrap = document.getElementById('devices-wrap');
+  const allDevices = [
+    ...state.sensorDevices.map(d => ({ ...d, type: 'sensor', id: d.sensor_device_id })),
+    ...state.camDevices.map(d => ({ ...d, type: 'cam', id: d.cam_device_id })),
+  ];
+
+  if (allDevices.length === 0) {
+    wrap.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📡</div><h3>Nenhum dispositivo</h3><p>Dispositivos aparecem aqui após serem registrados e associados a uma mesa.</p></div>`;
+    return;
+  }
+
+  const group = (id) => state.groups.find(g => g.sensor_device_id === id || g.cam_device_id === id);
+
+  wrap.innerHTML = `<table style="width:100%;border-collapse:collapse;background:white;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-sm)">
+    <thead>
+      <tr style="background:var(--green-50);font-size:12px;font-weight:600;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em">
+        <th style="padding:12px 16px;text-align:left">Dispositivo</th>
+        <th style="padding:12px 16px;text-align:left">Tipo</th>
+        <th style="padding:12px 16px;text-align:left">Mesa</th>
+        <th style="padding:12px 16px;text-align:right">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${allDevices.map(d => {
+        const g = group(d.id);
+        const typeLabel = d.type === 'sensor' ? '📡 Sensor' : '📷 Câmera';
+        return `<tr style="border-top:1px solid var(--gray-100);font-size:14px">
+          <td style="padding:12px 16px;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--green-900)">${d.id}</td>
+          <td style="padding:12px 16px;color:var(--gray-500)">${typeLabel}</td>
+          <td style="padding:12px 16px;color:var(--gray-500)">${g ? g.group_name : '—'}</td>
+          <td style="padding:12px 16px;text-align:right">
+            <button class="btn btn-secondary" style="font-size:12px;padding:5px 10px" onclick="openDeviceConfig('${d.id}','${d.type}')">⚙️ Configurar</button>
+          </td>
+        </tr>`;
+      }).join('')}
+    </tbody>
+  </table>`;
+}
+
+// ─────────────────────────────────────────────
+// TABS
+// ─────────────────────────────────────────────
+function setTab(name) {
+  document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  document.getElementById(`tab-${name}`).style.display = 'block';
+  event.currentTarget.classList.add('active');
+  const titles = { dashboard: 'Painel', groups: 'Mesas', devices: 'Dispositivos' };
+  document.getElementById('topbar-title').textContent = titles[name] || name;
+}
+
+// ─────────────────────────────────────────────
+// MODAL: GROUP
+// ─────────────────────────────────────────────
+function openNewGroup() {
+  document.getElementById('modal-group-title').textContent = 'Nova Mesa';
+  document.getElementById('group-edit-id').value = '';
+  document.getElementById('group-name-input').value = '';
+  document.getElementById('group-product-select').value = '';
+  document.getElementById('group-sensor-input').value = '';
+  document.getElementById('group-cam-input').value = '';
+  openModal('modal-group');
+}
+
+function openEditGroup(groupId) {
+  const g = state.groups.find(g => g.group_id === groupId);
+  if (!g) return;
+  document.getElementById('modal-group-title').textContent = 'Editar Mesa';
+  document.getElementById('group-edit-id').value = g.group_id;
+  document.getElementById('group-name-input').value = g.group_name;
+  document.getElementById('group-product-select').value = g.product_id || '';
+  document.getElementById('group-sensor-input').value = g.sensor_device_id || '';
+  document.getElementById('group-cam-input').value = g.cam_device_id || '';
+  openModal('modal-group');
+}
+
+async function saveGroup() {
+  const id         = document.getElementById('group-edit-id').value;
+  const name       = document.getElementById('group-name-input').value.trim();
+  const productId  = document.getElementById('group-product-select').value;
+  const sensorId   = document.getElementById('group-sensor-input').value.trim().toUpperCase();
+  const camId      = document.getElementById('group-cam-input').value.trim().toUpperCase();
+
+  if (!name) { showToast('Informe o nome da mesa.'); return; }
+
+  try {
+    if (id) {
+      await sb.update('groups', {
+        group_name:       name,
+        product_id:       productId || null,
+        sensor_device_id: sensorId  || null,
+        cam_device_id:    camId     || null,
+      }, `group_id=eq.${id}`);
+
+      // Update device group associations
+      if (sensorId) await sb.update('sensor_devices', { group_id: id }, `sensor_device_id=eq.${sensorId}`);
+      if (camId)    await sb.update('cam_devices',    { group_id: id }, `cam_device_id=eq.${camId}`);
+    } else {
+      if (!state.store) { showToast('Nenhuma loja encontrada.'); return; }
+      const [newGroup] = await sb.insert('groups', {
+        store_id:         state.store.store_id,
+        group_name:       name,
+        product_id:       productId || null,
+        sensor_device_id: sensorId  || null,
+        cam_device_id:    camId     || null,
+      });
+      if (sensorId) await sb.update('sensor_devices', { group_id: newGroup.group_id, store_id: state.store.store_id }, `sensor_device_id=eq.${sensorId}`);
+      if (camId)    await sb.update('cam_devices',    { group_id: newGroup.group_id, store_id: state.store.store_id }, `cam_device_id=eq.${camId}`);
+    }
+
+    closeModal('modal-group');
+    showToast('Mesa salva com sucesso.');
+    await refreshAll();
+  } catch(e) {
+    showToast('Erro ao salvar: ' + e.message);
+  }
+}
+
+async function deleteGroup(groupId) {
+  if (!confirm('Excluir esta mesa? Os dados históricos não serão apagados.')) return;
+  try {
+    await sb.delete('groups', `group_id=eq.${groupId}`);
+    showToast('Mesa excluída.');
+    await refreshAll();
+  } catch(e) {
+    showToast('Erro ao excluir: ' + e.message);
+  }
+}
+
+// ─────────────────────────────────────────────
+// MODAL: APPLY PRICE
+// ─────────────────────────────────────────────
+function openApplyPrice(groupId) {
+  const g = state.groups.find(g => g.group_id === groupId);
+  if (!g) return;
+  document.getElementById('price-group-id').value   = groupId;
+  document.getElementById('price-group-name').textContent = g.group_name;
+  document.getElementById('modal-price-current').textContent   = g.display_price    != null ? `R$ ${g.display_price.toFixed(2)}`    : '—';
+  document.getElementById('modal-price-suggested').textContent = g.recommended_price != null ? `R$ ${g.recommended_price.toFixed(2)}` : '—';
+  openModal('modal-price');
+}
+
+async function applyPrice() {
+  const groupId = document.getElementById('price-group-id').value;
+  const g = state.groups.find(g => g.group_id === groupId);
+  if (!g || g.recommended_price == null) return;
+
+  try {
+    await sb.update('groups', { display_price: g.recommended_price }, `group_id=eq.${groupId}`);
+
+    // Send MQTT command to sensor device to update LCD
+    if (g.sensor_device_id) {
+      await sendMqttCommand(g.sensor_device_id, { price: g.recommended_price });
+    }
+
+    closeModal('modal-price');
+    showToast(`Preço R$ ${g.recommended_price.toFixed(2)} aplicado.`);
+    await refreshAll();
+  } catch(e) {
+    showToast('Erro ao aplicar preço: ' + e.message);
+  }
+}
+
+// ─────────────────────────────────────────────
+// MODAL: DEVICE CONFIG
+// ─────────────────────────────────────────────
+function openDeviceConfig(deviceId, type) {
+  document.getElementById('device-config-id').value   = deviceId;
+  document.getElementById('device-config-type').value = type;
+  document.getElementById('device-config-name').textContent = deviceId;
+  document.getElementById('device-sampling-input').value = type === 'cam' ? 30000 : 2000;
+  document.getElementById('sensor-extra-config').style.display = type === 'sensor' ? 'block' : 'none';
+  openModal('modal-device');
+}
+
+async function saveDeviceConfig() {
+  const deviceId = document.getElementById('device-config-id').value;
+  const type     = document.getElementById('device-config-type').value;
+  const interval = parseInt(document.getElementById('device-sampling-input').value);
+  const showData = document.getElementById('device-showdata-input').value === 'true';
+
+  const cmd = { samplingInterval: interval };
+  if (type === 'sensor') cmd.showsensordata = showData;
+
+  try {
+    await sendMqttCommand(deviceId, cmd);
+    closeModal('modal-device');
+    showToast('Comando enviado ao dispositivo.');
+  } catch(e) {
+    showToast('Erro ao enviar comando: ' + e.message);
+  }
+}
+
+// ─────────────────────────────────────────────
+// MODAL: EDIT STORE
+// ─────────────────────────────────────────────
+function openEditStore() {
+  document.getElementById('store-name-input').value = state.store ? state.store.store_name : '';
+  openModal('modal-store');
+}
+
+async function saveStoreName() {
+  const name = document.getElementById('store-name-input').value.trim();
+  if (!name) return;
+  try {
+    await sb.update('stores', { store_name: name }, `store_id=eq.${state.store.store_id}`);
+    state.store.store_name = name;
+    document.getElementById('store-name-display').textContent = name;
+    closeModal('modal-store');
+    showToast('Nome da loja atualizado.');
+  } catch(e) {
+    showToast('Erro: ' + e.message);
+  }
+}
+
+// ─────────────────────────────────────────────
+// MQTT COMMAND (via backend endpoint)
+// ─────────────────────────────────────────────
+async function sendMqttCommand(deviceId, payload) {
+  try {
+    const res = await fetch(COMMAND_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ device_id: deviceId, payload }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    log.info && log.info(`[MQTT CMD] ${deviceId}:`, payload);
+  } catch(e) {
+    console.error('[MQTT CMD] Failed:', e);
+    throw e;
+  }
+}
+
+// ─────────────────────────────────────────────
+// MODAL HELPERS
+// ─────────────────────────────────────────────
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+// Close on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) overlay.classList.remove('open');
+  });
+});
+
+// ─────────────────────────────────────────────
+// TOAST
+// ─────────────────────────────────────────────
+let toastTimer;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
