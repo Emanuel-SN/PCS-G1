@@ -682,6 +682,55 @@
 
   .close-btn:hover { color: var(--gray-700); }
 
+  /* ── MANUAL PRICE INPUT ── */
+  .price-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+    border: 1.5px solid var(--gray-300);
+    border-radius: var(--radius-sm);
+    background: var(--white);
+    transition: border-color 0.15s;
+    padding: 0 14px; /* Adiciona o espaçamento interno nas laterais */
+  }
+
+  /* Efeito visual de foco na borda quando o usuário clica no input */
+  .price-input-wrap:focus-within {
+    border-color: var(--green-600);
+    box-shadow: 0 0 0 3px rgba(46, 110, 66, 0.15);
+  }
+
+  .price-input-prefix {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--gray-400);
+    user-select: none;
+    pointer-events: none;
+  }
+
+  .price-input {
+    flex: 1;
+    width: 100%;
+    height: 48px; /* Altura confortável para o clique */
+    border: none; /* Remove a borda individual do input */
+    font-size: 22px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    color: var(--green-900);
+    background: transparent;
+    outline: none;
+    padding: 0; /* Remove paddings antigos que possam deslocar o texto */
+  }
+
+  .price-input:focus { border-color: var(--green-600); }
+
+  .price-input-hint {
+    font-size: 12px;
+    color: var(--gray-500);
+    margin-top: 6px;
+  }
+
   /* ── TOAST ── */
   #toast {
     position: fixed;
@@ -973,7 +1022,7 @@
 </div>
 
 <!-- ═══════════════════════════════════════════
-     MODAL: APPLY PRICE
+     MODAL: APPLY SUGGESTED PRICE
 ═══════════════════════════════════════════ -->
 <div class="modal-overlay" id="modal-price">
   <div class="modal">
@@ -1001,6 +1050,43 @@
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('modal-price')">Cancelar</button>
       <button class="btn btn-amber" id="btn-apply-price" onclick="applyPrice()">Aplicar preço</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MODAL: SET MANUAL PRICE  ← NEW
+═══════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-manual-price">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Definir Preço Manual</span>
+      <button class="close-btn" onclick="closeModal('modal-manual-price')">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="manual-price-group-id">
+      <p style="font-size:14px;color:var(--gray-500);margin-bottom:20px">
+        Mesa: <strong id="manual-price-group-name"></strong>
+      </p>
+      <div class="form-group">
+        <label>Novo preço</label>
+        <div class="price-input-wrap">
+          <span class="price-input-prefix">R$</span>
+          <input
+            type="number"
+            id="manual-price-input"
+            class="price-input"
+            placeholder="0,00"
+            min="0"
+            step="0.01"
+          >
+        </div>
+        <p class="price-input-hint">O preço será aplicado imediatamente no LCD do sensor.</p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-manual-price')">Cancelar</button>
+      <button class="btn btn-primary" id="btn-apply-manual-price" onclick="applyManualPrice()">Aplicar preço</button>
     </div>
   </div>
 </div>
@@ -1218,7 +1304,6 @@ function doLogout() {
   document.getElementById('login-username').value = '';
 }
 
-// Enter key on either login field
 ['login-username', 'login-password'].forEach(id => {
   document.getElementById(id).addEventListener('keydown', e => {
     if (e.key === 'Enter') doLogin();
@@ -1246,7 +1331,6 @@ async function loadStore() {
     state.store = stores[0];
     document.getElementById('store-name-display').textContent = state.store.store_name;
   } else {
-    // Auto-create a store for this user if none exists
     const created = await sb.insert('stores', { user_id: state.user.user_id, store_name: state.user.username + "'s Store" });
     if (created && created.length > 0) {
       state.store = created[0];
@@ -1464,6 +1548,8 @@ function renderGroupCard(g) {
       </div>
       <div class="card-actions">
         <button class="btn btn-ghost" style="font-size:12px;padding:4px 8px"
+          onclick="openManualPrice('${g.group_id}')">💲 Preço manual</button>
+        <button class="btn btn-ghost" style="font-size:12px;padding:4px 8px"
           onclick="openEditGroup('${g.group_id}')">✏️ Editar</button>
       </div>
     </div>
@@ -1512,6 +1598,8 @@ function renderGroupsList() {
             </td>
             <td>${fPct}</td>
             <td>
+              <button class="btn btn-secondary" style="font-size:12px;padding:5px 10px;margin-right:6px"
+                onclick="openManualPrice('${g.group_id}')">💲 Preço manual</button>
               <button class="btn btn-secondary" style="font-size:12px;padding:5px 10px;margin-right:6px"
                 onclick="openEditGroup('${g.group_id}')">Editar</button>
               <button class="btn btn-danger" style="font-size:12px;padding:5px 10px"
@@ -1592,7 +1680,6 @@ function setTab(name, el) {
   const titles = { dashboard: 'Painel', groups: 'Mesas', devices: 'Dispositivos' };
   document.getElementById('topbar-title').textContent = titles[name] || name;
 
-  // "Nova Mesa" button only visible on dashboard/groups tabs
   document.getElementById('topbar-new-btn').style.display =
     name === 'devices' ? 'none' : 'inline-flex';
 
@@ -1657,7 +1744,6 @@ async function saveGroup() {
       groupId = newGroup.group_id;
     }
 
-    // Link devices to group + store (upsert-safe: devices may not exist yet)
     const deviceUpdates = [];
     if (sensorId) {
       deviceUpdates.push(
@@ -1690,7 +1776,6 @@ async function saveGroup() {
 async function deleteGroup(groupId) {
   if (!confirm('Excluir esta mesa? Os dados históricos não serão apagados.')) return;
   try {
-    // Unlink devices first
     const g = state.groups.find(g => g.group_id === groupId);
     const promises = [];
     if (g?.sensor_device_id)
@@ -1707,7 +1792,7 @@ async function deleteGroup(groupId) {
 }
 
 // ─────────────────────────────────────────────
-// MODAL: APPLY PRICE
+// MODAL: APPLY SUGGESTED PRICE
 // ─────────────────────────────────────────────
 function openApplyPrice(groupId) {
   const g = state.groups.find(g => g.group_id === groupId);
@@ -1733,6 +1818,54 @@ async function applyPrice() {
     }
     closeModal('modal-price');
     showToast(`Preço R$ ${g.recommended_price.toFixed(2)} aplicado.`);
+    await refreshAll();
+  } catch(e) {
+    showToast('Erro ao aplicar preço: ' + e.message, 'error');
+  } finally {
+    setLoading(btn, false, 'Aplicar preço');
+  }
+}
+
+// ─────────────────────────────────────────────
+// MODAL: MANUAL PRICE  ← NEW
+// ─────────────────────────────────────────────
+function openManualPrice(groupId) {
+  const g = state.groups.find(g => g.group_id === groupId);
+  if (!g) return;
+  document.getElementById('manual-price-group-id').value    = groupId;
+  document.getElementById('manual-price-group-name').textContent = g.group_name;
+  // Pre-fill with current display price if available
+  document.getElementById('manual-price-input').value =
+    g.display_price != null ? g.display_price.toFixed(2) : '';
+  openModal('modal-manual-price');
+  // Focus the input after modal opens
+  setTimeout(() => document.getElementById('manual-price-input').focus(), 50);
+}
+
+async function applyManualPrice() {
+  const groupId = document.getElementById('manual-price-group-id').value;
+  const raw     = document.getElementById('manual-price-input').value;
+  const price   = parseFloat(raw);
+  const btn     = document.getElementById('btn-apply-manual-price');
+
+  if (isNaN(price) || price < 0) {
+    showToast('Informe um preço válido.', 'error');
+    return;
+  }
+
+  const g = state.groups.find(g => g.group_id === groupId);
+  if (!g) return;
+
+  setLoading(btn, true, 'Aplicando...');
+  try {
+    // Update display_price in DB
+    await sb.update('groups', { display_price: price }, `group_id=eq.${groupId}`);
+    // Send to LCD via MQTT
+    if (g.sensor_device_id) {
+      await sendMqttCommand(g.sensor_device_id, { price });
+    }
+    closeModal('modal-manual-price');
+    showToast(`Preço manual R$ ${price.toFixed(2)} aplicado.`);
     await refreshAll();
   } catch(e) {
     showToast('Erro ao aplicar preço: ' + e.message, 'error');
