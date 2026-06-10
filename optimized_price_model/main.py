@@ -75,18 +75,17 @@ def compute_price(base_price, freshness, condition_factor) -> float:
     return round(recommended, 2)
 
 
-def publish_commands(sensor_device_id: str, recommended_price: float, flag: bool):
-    """Push price and LED flag to the sensor device in a single MQTT message."""
+def publish_flag(sensor_device_id: str, flag: bool):
+    """Push only the LED flag to the sensor device.
+    Price is intentionally excluded — the LCD is only updated when
+    the store owner clicks 'Aplicar' on the dashboard."""
     if mqtt_client and mqtt_client.is_connected():
         topic   = f"devices/{sensor_device_id}/commands"
-        payload = json.dumps({
-            "flag":  flag,
-            "price": recommended_price
-        })
+        payload = json.dumps({"flag": flag})
         mqtt_client.publish(topic, payload)
-        log.info(f"Published flag={flag}, price={recommended_price} to {topic}")
+        log.info(f"Published flag={flag} to {topic}")
     else:
-        log.warning("MQTT client not connected, skipping command publish")
+        log.warning("MQTT client not connected, skipping flag publish")
 
 
 def run_price_optimization():
@@ -172,9 +171,10 @@ def run_price_optimization():
         except Exception as e:
             log.error(f"Failed to update group recommended_price for {group_id}: {e}")
 
-        # Publish price and flag to sensor device
+        # Only publish the alert flag — price is set by the dashboard when
+        # the owner clicks "Aplicar", not automatically by the optimizer
         if sensor_device_id:
-            publish_commands(sensor_device_id, recommended_price, conditions_violated)
+            publish_flag(sensor_device_id, conditions_violated)
 
     log.info("Price optimization cycle complete")
 
