@@ -1140,8 +1140,7 @@
     </div>
     <div class="modal-body">
       <div class="info-box">
-        O ID do dispositivo é o endereço MAC sem dois-pontos (ex: <span style="font-family:'JetBrains Mono',monospace">246F28AA3B12</span>). Ele é exibido no monitor serial ao ligar o dispositivo.
-      </div>
+O ID do dispositivo é o endereço MAC sem dois-pontos (ex: <span style="font-family:'JetBrains Mono',monospace">246F28AA3B12</span>). <strong>O dispositivo precisa ter se conectado ao menos uma vez antes de ser registrado aqui.</strong>      </div>
       <div class="form-group">
         <label>Tipo de dispositivo</label>
         <select id="register-device-type">
@@ -1655,12 +1654,10 @@ function renderDevices() {
             <td style="color:var(--gray-500)">${d.type === 'sensor' ? '📡 Sensor' : '📷 Câmera'}</td>
             <td style="color:var(--gray-500)">${groupName(d.group_id)}</td>
             <td>
-              ${d.type === 'sensor'
-                ? `<button class="btn btn-secondary" style="font-size:12px;padding:5px 10px"
-                     onclick="openDeviceConfig('${d.id}','sensor')">⚙️ Configurar</button>`
-                : `<button class="btn btn-secondary" style="font-size:12px;padding:5px 10px"
-                     onclick="openDeviceConfig('${d.id}','cam')">⚙️ Configurar</button>`
-              }
+              <button class="btn btn-secondary" style="font-size:12px;padding:5px 10px;margin-right:6px"
+                onclick="openDeviceConfig('${d.id}','${d.type}')">⚙️ Configurar</button>
+              <button class="btn btn-danger" style="font-size:12px;padding:5px 10px"
+                onclick="deleteDevice('${d.id}','${d.type}')">Excluir</button>
             </td>
           </tr>`).join('')}
       </tbody>
@@ -1933,19 +1930,44 @@ async function registerDevice() {
   }
   if (!state.store) { showToast('Nenhuma loja encontrada.', 'error'); return; }
 
-  setLoading(btn, true, 'Registrando...');
+  // Check if already registered under this store
+  const alreadyRegistered = [...state.sensorDevices, ...state.camDevices].some(d =>
+    (d.sensor_device_id || d.cam_device_id) === id
+  );
+  if (alreadyRegistered) {
+    showToast('Este dispositivo já está registrado nesta loja.', 'error');
+    return;
+  }
+
+  setLoading(btn, true, 'Verificando...');
   try {
+    // Verify the device exists in the DB (i.e. it has connected at least once
+    // and the pipeline created a row for it), but is not yet assigned to any store.
+    let existing;
     if (type === 'sensor') {
-      await sb.upsert('sensor_devices',
-        { sensor_device_id: id, store_id: state.store.store_id, led_flag: false },
-        'sensor_device_id'
-      );
+      const rows = await sb.select('sensor_devices', 'sensor_device_id,store_id', `sensor_device_id=eq.${id}`);
+      existing = rows?.[0] ?? null;
     } else {
-      await sb.upsert('cam_devices',
-        { cam_device_id: id, store_id: state.store.store_id },
-        'cam_device_id'
-      );
+      const rows = await sb.select('cam_devices', 'cam_device_id,store_id', `cam_device_id=eq.${id}`);
+      existing = rows?.[0] ?? null;
     }
+
+    if (!existing) {
+      showToast('Dispositivo não encontrado. Certifique-se de que ele se conectou ao menos uma vez.', 'error');
+      return;
+    }
+    if (existing.store_id && existing.store_id !== state.store.store_id) {
+      showToast('Este dispositivo já está vinculado a outra loja.', 'error');
+      return;
+    }
+
+    // Assign it to this store
+    if (type === 'sensor') {
+      await sb.update('sensor_devices', { store_id: state.store.store_id }, `sensor_device_id=eq.${id}`);
+    } else {
+      await sb.update('cam_devices', { store_id: state.store.store_id }, `cam_device_id=eq.${id}`);
+    }
+
     closeModal('modal-register-device');
     showToast('Dispositivo registrado com sucesso.');
     await refreshAll();
@@ -1953,6 +1975,28 @@ async function registerDevice() {
     showToast('Erro ao registrar: ' + e.message, 'error');
   } finally {
     setLoading(btn, false, 'Registrar');
+  }
+}
+
+async function deleteDevice(deviceId, type) {
+  if (!confirm(`Remover dispositivo ${deviceId}? Ele será desvinculado da loja e de qualquer mesa.`)) return;
+  try {
+    if (type === 'sensor') {
+      // Detach from any group first, then clear store assignment
+      await sb.update('sensor_devices',
+        { store_id: null, group_id: null },
+        `sensor_device_id=eq.${deviceId}`
+      );
+    } else {
+      await sb.update('cam_devices',
+        { store_id: null, group_id: null },
+        `cam_device_id=eq.${deviceId}`
+      );
+    }
+    showToast('Dispositivo removido da loja.');
+    await refreshAll();
+  } catch(e) {
+    showToast('Erro ao remover dispositivo: ' + e.message, 'error');
   }
 }
 
