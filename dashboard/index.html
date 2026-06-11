@@ -84,18 +84,35 @@
     color: var(--green-900);
   }
 
-  .login-card h2 {
-    font-size: 20px;
-    font-weight: 600;
-    color: var(--green-900);
-    margin-bottom: 6px;
+  /* Auth tabs */
+  .auth-tabs {
+    display: flex;
+    border-bottom: 2px solid var(--gray-100);
+    margin-bottom: 24px;
   }
 
-  .login-card p {
+  .auth-tab {
+    flex: 1;
+    text-align: center;
+    padding: 10px;
     font-size: 14px;
+    font-weight: 500;
     color: var(--gray-500);
-    margin-bottom: 28px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.15s;
   }
+
+  .auth-tab:hover { color: var(--green-700); }
+
+  .auth-tab.active {
+    color: var(--green-700);
+    border-bottom-color: var(--green-700);
+  }
+
+  .auth-panel { display: none; }
+  .auth-panel.active { display: block; }
 
   .form-group {
     margin-bottom: 16px;
@@ -148,9 +165,6 @@
   .btn-primary {
     background: var(--green-700);
     color: var(--white);
-  }
-
-  .login-card .btn-primary {
     width: 100%;
     justify-content: center;
     padding: 12px;
@@ -190,15 +204,16 @@
 
   .btn-danger:hover:not(:disabled) { background: #fbd5d1; }
 
-  .login-error {
-    background: var(--red-100);
-    color: var(--red-500);
+  .alert-box {
     padding: 10px 14px;
     border-radius: var(--radius-sm);
     font-size: 13px;
     margin-bottom: 16px;
     display: none;
   }
+
+  .alert-error   { background: var(--red-100);   color: var(--red-500); }
+  .alert-success { background: var(--green-100); color: var(--green-700); }
 
   /* ── APP ── */
   #app { display: none; min-height: 100vh; }
@@ -611,7 +626,23 @@
     background: var(--gray-100);
     padding: 2px 6px;
     border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
   }
+
+  /* ── ONLINE DOT ── */
+  .online-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  .online-dot.online  { background: #22c55e; }
+  .online-dot.offline { background: #9ca3af; }
+  .online-dot.unknown { background: var(--gray-300); }
 
   .card-actions { display: flex; gap: 6px; }
 
@@ -685,6 +716,76 @@
 
   .close-btn:hover { color: var(--gray-700); }
 
+  /* ── DEVICE CONFIG SETTINGS ── */
+  .setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--gray-100);
+  }
+
+  .setting-row:last-child { border-bottom: none; }
+
+  .setting-label {
+    font-size: 14px;
+    color: var(--gray-700);
+  }
+
+  .setting-sub {
+    font-size: 12px;
+    color: var(--gray-500);
+    margin-top: 2px;
+  }
+
+  .setting-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .setting-input {
+    width: 120px;
+    padding: 7px 10px;
+    border: 1.5px solid var(--gray-300);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--gray-700);
+    outline: none;
+  }
+
+  .setting-input:focus { border-color: var(--green-600); }
+
+  .setting-select {
+    padding: 7px 10px;
+    border: 1.5px solid var(--gray-300);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+    color: var(--gray-700);
+    outline: none;
+    background: white;
+  }
+
+  .setting-select:focus { border-color: var(--green-600); }
+
+  .send-btn {
+    padding: 5px 10px;
+    font-size: 12px;
+    background: var(--green-50);
+    color: var(--green-700);
+    border: 1.5px solid var(--green-200);
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .send-btn:hover { background: var(--green-100); }
+
   /* ── MANUAL PRICE INPUT ── */
   .price-input-wrap {
     display: flex;
@@ -695,10 +796,9 @@
     border-radius: var(--radius-sm);
     background: var(--white);
     transition: border-color 0.15s;
-    padding: 0 14px; /* Adiciona o espaçamento interno nas laterais */
+    padding: 0 14px;
   }
 
-  /* Efeito visual de foco na borda quando o usuário clica no input */
   .price-input-wrap:focus-within {
     border-color: var(--green-600);
     box-shadow: 0 0 0 3px rgba(46, 110, 66, 0.15);
@@ -715,18 +815,16 @@
   .price-input {
     flex: 1;
     width: 100%;
-    height: 48px; /* Altura confortável para o clique */
-    border: none; /* Remove a borda individual do input */
+    height: 48px;
+    border: none;
     font-size: 22px;
     font-family: 'JetBrains Mono', monospace;
     font-weight: 600;
     color: var(--green-900);
     background: transparent;
     outline: none;
-    padding: 0; /* Remove paddings antigos que possam deslocar o texto */
+    padding: 0;
   }
-
-  .price-input:focus { border-color: var(--green-600); }
 
   .price-input-hint {
     font-size: 12px;
@@ -845,7 +943,7 @@
 <body>
 
 <!-- ═══════════════════════════════════════════
-     LOGIN
+     LOGIN / SIGNUP
 ═══════════════════════════════════════════ -->
 <div id="login-screen">
   <div class="login-card">
@@ -853,18 +951,44 @@
       <div class="login-logo-icon">🌿</div>
       <span class="login-logo-text">FreshTrack</span>
     </div>
-    <h2>Bem-vindo de volta</h2>
-    <p>Entre com suas credenciais para acessar o painel.</p>
-    <div class="login-error" id="login-error">Usuário ou senha incorretos.</div>
-    <div class="form-group">
-      <label>Usuário</label>
-      <input type="text" id="login-username" placeholder="seu_usuario" autocomplete="username">
+
+    <div class="auth-tabs">
+      <div class="auth-tab active" id="tab-login-btn" onclick="switchAuthTab('login')">Entrar</div>
+      <div class="auth-tab" id="tab-signup-btn" onclick="switchAuthTab('signup')">Criar conta</div>
     </div>
-    <div class="form-group">
-      <label>Senha</label>
-      <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password">
+
+    <!-- LOGIN PANEL -->
+    <div class="auth-panel active" id="auth-login">
+      <div class="alert-box alert-error" id="login-error">Usuário ou senha incorretos.</div>
+      <div class="form-group">
+        <label>Usuário</label>
+        <input type="text" id="login-username" placeholder="seu_usuario" autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label>Senha</label>
+        <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="btn btn-primary" id="login-btn" onclick="doLogin()">Entrar</button>
     </div>
-    <button class="btn btn-primary" id="login-btn" onclick="doLogin()">Entrar</button>
+
+    <!-- SIGNUP PANEL -->
+    <div class="auth-panel" id="auth-signup">
+      <div class="alert-box alert-error"   id="signup-error"></div>
+      <div class="alert-box alert-success" id="signup-success">Conta criada! Entrando...</div>
+      <div class="form-group">
+        <label>Usuário</label>
+        <input type="text" id="signup-username" placeholder="seu_usuario" autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label>Senha</label>
+        <input type="password" id="signup-password" placeholder="mínimo 6 caracteres" autocomplete="new-password">
+      </div>
+      <div class="form-group">
+        <label>Nome da loja</label>
+        <input type="text" id="signup-store" placeholder="Mercado do João">
+      </div>
+      <button class="btn btn-primary" id="signup-btn" onclick="doSignup()">Criar conta</button>
+    </div>
   </div>
 </div>
 
@@ -931,9 +1055,9 @@
             <div class="stat-sub">grupos monitorados</div>
           </div>
           <div class="stat-card">
-            <div class="stat-label">Dispositivos</div>
+            <div class="stat-label">Dispositivos online</div>
             <div class="stat-value" id="stat-devices">—</div>
-            <div class="stat-sub">sensores + câmeras</div>
+            <div class="stat-sub">ativos nos últimos 5 min</div>
           </div>
           <div class="stat-card">
             <div class="stat-label">Alertas ativos</div>
@@ -1058,7 +1182,7 @@
 </div>
 
 <!-- ═══════════════════════════════════════════
-     MODAL: SET MANUAL PRICE  ← NEW
+     MODAL: SET MANUAL PRICE
 ═══════════════════════════════════════════ -->
 <div class="modal-overlay" id="modal-manual-price">
   <div class="modal">
@@ -1075,14 +1199,7 @@
         <label>Novo preço</label>
         <div class="price-input-wrap">
           <span class="price-input-prefix">R$</span>
-          <input
-            type="number"
-            id="manual-price-input"
-            class="price-input"
-            placeholder="0,00"
-            min="0"
-            step="0.01"
-          >
+          <input type="number" id="manual-price-input" class="price-input" placeholder="0,00" min="0" step="0.01">
         </div>
         <p class="price-input-hint">O preço será aplicado imediatamente no LCD do sensor.</p>
       </div>
@@ -1095,7 +1212,7 @@
 </div>
 
 <!-- ═══════════════════════════════════════════
-     MODAL: DEVICE CONFIG
+     MODAL: DEVICE CONFIG (per-setting)
 ═══════════════════════════════════════════ -->
 <div class="modal-overlay" id="modal-device">
   <div class="modal">
@@ -1106,28 +1223,17 @@
     <div class="modal-body">
       <input type="hidden" id="device-config-id">
       <input type="hidden" id="device-config-type">
-      <p style="font-size:13px;color:var(--gray-500);margin-bottom:16px">
-        Dispositivo: <span id="device-config-name" style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gray-700)"></span>
-      </p>
-      <div class="form-group">
-        <label>Intervalo de captura (ms)</label>
-        <input type="number" id="device-sampling-input" placeholder="30000" min="5000" step="1000">
-        <p style="font-size:11px;color:var(--gray-500);margin-top:4px">Mínimo recomendado: 10 000 ms (10 s)</p>
+      <!-- device identity + status bar -->
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;padding:10px 14px;background:var(--gray-100);border-radius:var(--radius-sm)">
+        <span id="device-config-dot" class="online-dot unknown"></span>
+        <span id="device-config-name" style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--gray-700)"></span>
+        <span id="device-config-status" style="font-size:12px;color:var(--gray-500)"></span>
       </div>
-      <div id="sensor-extra-config">
-        <div class="divider"></div>
-        <div class="form-group">
-          <label>Mostrar temperatura e umidade no LCD</label>
-          <select id="device-showdata-input">
-            <option value="true">Sim</option>
-            <option value="false">Não</option>
-          </select>
-        </div>
-      </div>
+      <!-- settings rows injected here -->
+      <div id="device-settings-list"></div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('modal-device')">Cancelar</button>
-      <button class="btn btn-primary" id="btn-save-device" onclick="saveDeviceConfig()">Enviar comando</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-device')">Fechar</button>
     </div>
   </div>
 </div>
@@ -1143,7 +1249,8 @@
     </div>
     <div class="modal-body">
       <div class="info-box">
-O ID do dispositivo é o endereço MAC sem dois-pontos (ex: <span style="font-family:'JetBrains Mono',monospace">246F28AA3B12</span>). <strong>O dispositivo precisa ter se conectado ao menos uma vez antes de ser registrado aqui.</strong>      </div>
+        O ID do dispositivo é o endereço MAC sem dois-pontos (ex: <span style="font-family:'JetBrains Mono',monospace">246F28AA3B12</span>). Ele é exibido no monitor serial ao ligar o dispositivo.
+      </div>
       <div class="form-group">
         <label>Tipo de dispositivo</label>
         <select id="register-device-type">
@@ -1198,8 +1305,8 @@ const SUPABASE_URL        = 'https://SEU_PROJECT_ID.supabase.co';
 const SUPABASE_ANON_KEY   = 'SUA_ANON_KEY_AQUI';
 const COMMAND_ENDPOINT    = 'https://SEU_PIPELINE.railway.app/command';
 
-// Intervalo de auto-refresh em ms (padrão: 30 segundos)
-const AUTO_REFRESH_MS = 30_000;
+const AUTO_REFRESH_MS     = 30_000;
+const ONLINE_THRESHOLD_MS = 5 * 60 * 1000; // 5 minutes
 
 // ─────────────────────────────────────────────
 // STATE
@@ -1211,6 +1318,7 @@ const state = {
   products:      [],
   sensorDevices: [],
   camDevices:    [],
+  lastSeen:      {},
   currentTab:    'dashboard',
 };
 
@@ -1226,7 +1334,7 @@ async function sbFetch(path, options = {}) {
     'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
     'Content-Type':  'application/json',
   };
-  if (options.prefer) headers['Prefer'] = options.prefer;
+  if (options.prefer)  headers['Prefer']  = options.prefer;
   if (options.headers) Object.assign(headers, options.headers);
 
   const res = await fetch(url, { ...options, headers });
@@ -1243,9 +1351,6 @@ const sb = {
   select: (table, cols = '*', filter = '') =>
     sbFetch(`${table}?select=${encodeURIComponent(cols)}${filter ? '&' + filter : ''}`),
 
-  selectOne: (table, cols = '*', filter = '') =>
-    sbFetch(`${table}?select=${encodeURIComponent(cols)}&${filter}&limit=1`).then(r => r?.[0] ?? null),
-
   insert: (table, data) =>
     sbFetch(table, { method: 'POST', body: JSON.stringify(data), prefer: 'return=representation' }),
 
@@ -1260,7 +1365,17 @@ const sb = {
 };
 
 // ─────────────────────────────────────────────
-// AUTH
+// AUTH TAB SWITCH
+// ─────────────────────────────────────────────
+function switchAuthTab(tab) {
+  document.getElementById('tab-login-btn').classList.toggle('active',  tab === 'login');
+  document.getElementById('tab-signup-btn').classList.toggle('active', tab === 'signup');
+  document.getElementById('auth-login').classList.toggle('active',  tab === 'login');
+  document.getElementById('auth-signup').classList.toggle('active', tab === 'signup');
+}
+
+// ─────────────────────────────────────────────
+// AUTH — LOGIN
 // ─────────────────────────────────────────────
 async function doLogin() {
   const username = document.getElementById('login-username').value.trim();
@@ -1270,7 +1385,7 @@ async function doLogin() {
 
   errEl.style.display = 'none';
   if (!username || !password) {
-    errEl.textContent = 'Preencha usuário e senha.';
+    errEl.textContent   = 'Preencha usuário e senha.';
     errEl.style.display = 'block';
     return;
   }
@@ -1278,39 +1393,91 @@ async function doLogin() {
   setLoading(btn, true, 'Entrando...');
   try {
     const users = await sb.select(
-      'users',
-      'user_id,username',
+      'users', 'user_id,username',
       `username=eq.${encodeURIComponent(username)}&password=eq.${encodeURIComponent(password)}`
     );
     if (!users || users.length === 0) {
-      errEl.textContent = 'Usuário ou senha incorretos.';
+      errEl.textContent   = 'Usuário ou senha incorretos.';
       errEl.style.display = 'block';
       return;
     }
     state.user = users[0];
     await loadApp();
   } catch(e) {
-    errEl.textContent = 'Erro ao conectar: ' + e.message;
+    errEl.textContent   = 'Erro ao conectar: ' + e.message;
     errEl.style.display = 'block';
   } finally {
     setLoading(btn, false, 'Entrar');
   }
 }
 
+// ─────────────────────────────────────────────
+// AUTH — SIGNUP
+// ─────────────────────────────────────────────
+async function doSignup() {
+  const username  = document.getElementById('signup-username').value.trim();
+  const password  = document.getElementById('signup-password').value;
+  const storeName = document.getElementById('signup-store').value.trim();
+  const errEl     = document.getElementById('signup-error');
+  const successEl = document.getElementById('signup-success');
+  const btn       = document.getElementById('signup-btn');
+
+  errEl.style.display     = 'none';
+  successEl.style.display = 'none';
+
+  if (!username || !password || !storeName) {
+    errEl.textContent   = 'Preencha todos os campos.';
+    errEl.style.display = 'block';
+    return;
+  }
+  if (password.length < 6) {
+    errEl.textContent   = 'Senha deve ter ao menos 6 caracteres.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  setLoading(btn, true, 'Criando conta...');
+  try {
+    const existing = await sb.select('users', 'user_id', `username=eq.${encodeURIComponent(username)}`);
+    if (existing && existing.length > 0) {
+      errEl.textContent   = 'Esse nome de usuário já está em uso.';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    const [newUser] = await sb.insert('users', { username, password });
+    await sb.insert('stores', { user_id: newUser.user_id, store_name: storeName });
+
+    successEl.style.display = 'block';
+    state.user = newUser;
+    setTimeout(() => loadApp(), 1200);
+  } catch(e) {
+    errEl.textContent   = 'Erro ao criar conta: ' + e.message;
+    errEl.style.display = 'block';
+  } finally {
+    setLoading(btn, false, 'Criar conta');
+  }
+}
+
+// Enter key works in both panels
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  const loginActive = document.getElementById('auth-login').classList.contains('active');
+  if (loginActive) doLogin(); else doSignup();
+});
+
+// ─────────────────────────────────────────────
+// AUTH — LOGOUT
+// ─────────────────────────────────────────────
 function doLogout() {
   clearInterval(autoRefreshTimer);
-  Object.assign(state, { user: null, store: null, groups: [], products: [], sensorDevices: [], camDevices: [] });
+  Object.assign(state, { user: null, store: null, groups: [], products: [], sensorDevices: [], camDevices: [], lastSeen: {} });
   document.getElementById('app').style.display          = 'none';
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('login-password').value = '';
   document.getElementById('login-username').value = '';
+  switchAuthTab('login');
 }
-
-['login-username', 'login-password'].forEach(id => {
-  document.getElementById(id).addEventListener('keydown', e => {
-    if (e.key === 'Enter') doLogin();
-  });
-});
 
 // ─────────────────────────────────────────────
 // APP INIT
@@ -1319,7 +1486,7 @@ async function loadApp() {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').style.display          = 'block';
 
-  document.getElementById('user-avatar').textContent      = state.user.username.slice(0, 2).toUpperCase();
+  document.getElementById('user-avatar').textContent       = state.user.username.slice(0, 2).toUpperCase();
   document.getElementById('user-name-display').textContent = state.user.username;
 
   await loadStore();
@@ -1333,6 +1500,7 @@ async function loadStore() {
     state.store = stores[0];
     document.getElementById('store-name-display').textContent = state.store.store_name;
   } else {
+    // Fallback: auto-create store (e.g. for legacy accounts without one)
     const created = await sb.insert('stores', { user_id: state.user.user_id, store_name: state.user.username + "'s Store" });
     if (created && created.length > 0) {
       state.store = created[0];
@@ -1355,7 +1523,7 @@ async function manualRefresh() {
 
 async function refreshAll(silent = false) {
   try {
-    await Promise.all([loadGroups(), loadProducts(), loadDevices()]);
+    await Promise.all([loadGroups(), loadProducts(), loadDevices(), loadLastSeen()]);
   } catch(e) {
     if (!silent) showToast('Erro ao carregar dados: ' + e.message, 'error');
     return;
@@ -1399,11 +1567,58 @@ async function loadProducts() {
 async function loadDevices() {
   if (!state.store) return;
   [state.sensorDevices, state.camDevices] = await Promise.all([
-    sb.select('sensor_devices', 'sensor_device_id,group_id,led_flag', `store_id=eq.${state.store.store_id}`),
-    sb.select('cam_devices',    'cam_device_id,group_id',              `store_id=eq.${state.store.store_id}`),
+    sb.select('sensor_devices', 'sensor_device_id,group_id,led_flag,sampling_interval', `store_id=eq.${state.store.store_id}`),
+    sb.select('cam_devices',    'cam_device_id,group_id,sampling_interval',              `store_id=eq.${state.store.store_id}`),
   ]);
   state.sensorDevices = state.sensorDevices || [];
   state.camDevices    = state.camDevices    || [];
+}
+
+async function loadLastSeen() {
+  const sensorIds = state.sensorDevices.map(d => d.sensor_device_id);
+  const camIds    = state.camDevices.map(d => d.cam_device_id);
+  state.lastSeen  = {};
+
+  await Promise.all([
+    ...sensorIds.map(async id => {
+      const rows = await sb.select('sensor_readings', 'captured_at',
+        `sensor_device_id=eq.${id}&order=captured_at.desc&limit=1`);
+      if (rows && rows.length) state.lastSeen[id] = new Date(rows[0].captured_at);
+    }),
+    ...camIds.map(async id => {
+      const rows = await sb.select('image_captures', 'captured_at',
+        `cam_device_id=eq.${id}&order=captured_at.desc&limit=1`);
+      if (rows && rows.length) state.lastSeen[id] = new Date(rows[0].captured_at);
+    }),
+  ]);
+}
+
+// ─────────────────────────────────────────────
+// ONLINE STATUS HELPERS
+// ─────────────────────────────────────────────
+function getDeviceStatus(deviceId, samplingInterval) {
+  const lastSeen = state.lastSeen[deviceId];
+  if (!lastSeen) return { online: null, label: 'Sem dados', ago: null };
+  const ms        = Date.now() - lastSeen.getTime();
+  const threshold = Math.max(ONLINE_THRESHOLD_MS, (samplingInterval || 30000) * 3);
+  return {
+    online: ms < threshold,
+    label:  ms < threshold ? 'Online' : 'Offline',
+    ago:    formatAgo(ms),
+  };
+}
+
+function formatAgo(ms) {
+  const s = Math.floor(ms / 1000);
+  if (s < 60)    return `${s}s atrás`;
+  if (s < 3600)  return `${Math.floor(s / 60)}min atrás`;
+  if (s < 86400) return `${Math.floor(s / 3600)}h atrás`;
+  return `${Math.floor(s / 86400)}d atrás`;
+}
+
+function dotClass(status) {
+  if (status.online === null) return 'unknown';
+  return status.online ? 'online' : 'offline';
 }
 
 // ─────────────────────────────────────────────
@@ -1411,14 +1626,19 @@ async function loadDevices() {
 // ─────────────────────────────────────────────
 function renderDashboard() {
   const { groups, sensorDevices, camDevices } = state;
-  const alerts         = groups.filter(isGroupAlert).length;
-  const freshnessVals  = groups.filter(g => g.latest_freshness != null).map(g => g.latest_freshness);
-  const avgFreshness   = freshnessVals.length
+  const alerts        = groups.filter(isGroupAlert).length;
+  const allDevices    = [
+    ...sensorDevices.map(d => ({ id: d.sensor_device_id, si: d.sampling_interval })),
+    ...camDevices.map(d =>    ({ id: d.cam_device_id,    si: d.sampling_interval })),
+  ];
+  const onlineCount   = allDevices.filter(d => getDeviceStatus(d.id, d.si).online === true).length;
+  const freshnessVals = groups.filter(g => g.latest_freshness != null).map(g => g.latest_freshness);
+  const avgFreshness  = freshnessVals.length
     ? freshnessVals.reduce((a, b) => a + b, 0) / freshnessVals.length
     : null;
 
   document.getElementById('stat-groups').textContent    = groups.length;
-  document.getElementById('stat-devices').textContent   = sensorDevices.length + camDevices.length;
+  document.getElementById('stat-devices').textContent   = `${onlineCount}/${allDevices.length}`;
   document.getElementById('stat-alerts').textContent    = alerts;
   document.getElementById('stat-freshness').textContent = avgFreshness != null
     ? (avgFreshness * 100).toFixed(0) + '%' : '—';
@@ -1448,15 +1668,15 @@ function isGroupAlert(g) {
 
 function freshnessColor(f) {
   if (f == null) return '#d1d5db';
-  if (f >= 0.75)  return '#2e6e42';
-  if (f >= 0.45)  return '#e8a020';
+  if (f >= 0.75) return '#2e6e42';
+  if (f >= 0.45) return '#e8a020';
   return '#d94f3d';
 }
 
 function freshnessLabel(f) {
   if (f == null) return 'Sem dados';
-  if (f >= 0.75)  return 'Fresco';
-  if (f >= 0.45)  return 'Atenção';
+  if (f >= 0.75) return 'Fresco';
+  if (f >= 0.45) return 'Atenção';
   return 'Crítico';
 }
 
@@ -1491,6 +1711,12 @@ function renderGroupCard(g) {
   const recommendedPrice = g.recommended_price != null ? `R$ ${g.recommended_price.toFixed(2)}` : '—';
   const hasNewPrice      = g.recommended_price != null
     && (g.display_price == null || Math.abs(g.display_price - g.recommended_price) > 0.001);
+
+  // Device online status for footer dots
+  const sensor  = state.sensorDevices.find(d => d.sensor_device_id === g.sensor_device_id);
+  const cam     = state.camDevices.find(d => d.cam_device_id === g.cam_device_id);
+  const sStatus = sensor ? getDeviceStatus(sensor.sensor_device_id, sensor.sampling_interval) : null;
+  const cStatus = cam    ? getDeviceStatus(cam.cam_device_id,    cam.sampling_interval)    : null;
 
   return `
   <div class="group-card${alert ? ' alert' : ''}">
@@ -1545,8 +1771,18 @@ function renderGroupCard(g) {
     </div>
     <div class="group-card-footer">
       <div class="device-ids">
-        ${g.sensor_device_id ? `<span class="device-tag">📡 ${g.sensor_device_id.slice(-6)}</span>` : ''}
-        ${g.cam_device_id    ? `<span class="device-tag">📷 ${g.cam_device_id.slice(-6)}</span>`    : ''}
+        ${g.sensor_device_id && sStatus
+          ? `<span class="device-tag">
+               <span class="online-dot ${dotClass(sStatus)}"></span>
+               📡 ${escHtml(g.sensor_device_id.slice(-6))}
+             </span>`
+          : ''}
+        ${g.cam_device_id && cStatus
+          ? `<span class="device-tag">
+               <span class="online-dot ${dotClass(cStatus)}"></span>
+               📷 ${escHtml(g.cam_device_id.slice(-6))}
+             </span>`
+          : ''}
       </div>
       <div class="card-actions">
         <button class="btn btn-ghost" style="font-size:12px;padding:4px 8px"
@@ -1559,7 +1795,7 @@ function renderGroupCard(g) {
 }
 
 // ─────────────────────────────────────────────
-// RENDER — GROUPS LIST (management tab)
+// RENDER — GROUPS LIST
 // ─────────────────────────────────────────────
 function renderGroupsList() {
   const wrap = document.getElementById('groups-list-wrap');
@@ -1577,12 +1813,7 @@ function renderGroupsList() {
     <table class="data-table">
       <thead>
         <tr>
-          <th>Mesa</th>
-          <th>Produto</th>
-          <th>Sensor</th>
-          <th>Câmera</th>
-          <th>Frescor</th>
-          <th>Ações</th>
+          <th>Mesa</th><th>Produto</th><th>Sensor</th><th>Câmera</th><th>Frescor</th><th>Ações</th>
         </tr>
       </thead>
       <tbody>
@@ -1592,12 +1823,8 @@ function renderGroupsList() {
           return `<tr>
             <td style="font-weight:500;color:var(--green-900)">${escHtml(g.group_name)}</td>
             <td style="color:var(--gray-500)">${prod ? escHtml(prod.product_name) : '—'}</td>
-            <td style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gray-500)">
-              ${g.sensor_device_id || '—'}
-            </td>
-            <td style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gray-500)">
-              ${g.cam_device_id || '—'}
-            </td>
+            <td style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gray-500)">${g.sensor_device_id || '—'}</td>
+            <td style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gray-500)">${g.cam_device_id || '—'}</td>
             <td>${fPct}</td>
             <td>
               <button class="btn btn-secondary" style="font-size:12px;padding:5px 10px;margin-right:6px"
@@ -1619,8 +1846,8 @@ function renderGroupsList() {
 function renderDevices() {
   const wrap = document.getElementById('devices-wrap');
   const allDevices = [
-    ...state.sensorDevices.map(d => ({ id: d.sensor_device_id, type: 'sensor', group_id: d.group_id })),
-    ...state.camDevices.map(d =>    ({ id: d.cam_device_id,    type: 'cam',    group_id: d.group_id })),
+    ...state.sensorDevices.map(d => ({ id: d.sensor_device_id, type: 'sensor', si: d.sampling_interval, group_id: d.group_id })),
+    ...state.camDevices.map(d =>    ({ id: d.cam_device_id,    type: 'cam',    si: d.sampling_interval, group_id: d.group_id })),
   ];
 
   if (allDevices.length === 0) {
@@ -1633,36 +1860,37 @@ function renderDevices() {
     return;
   }
 
-  const groupName = (groupId) => {
-    const g = state.groups.find(g => g.group_id === groupId);
+  const groupName = id => {
+    const g = state.groups.find(g => g.group_id === id);
     return g ? escHtml(g.group_name) : '—';
   };
 
   wrap.innerHTML = `
     <table class="data-table">
       <thead>
-        <tr>
-          <th>ID (MAC)</th>
-          <th>Tipo</th>
-          <th>Mesa vinculada</th>
-          <th>Ações</th>
-        </tr>
+        <tr><th>ID (MAC)</th><th>Tipo</th><th>Status</th><th>Último contato</th><th>Mesa vinculada</th><th>Ações</th></tr>
       </thead>
       <tbody>
-        ${allDevices.map(d => `
-          <tr>
-            <td style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--green-900)">
-              ${d.id}
+        ${allDevices.map(d => {
+          const status    = getDeviceStatus(d.id, d.si);
+          const typeLabel = d.type === 'sensor' ? '📡 Sensor' : '📷 Câmera';
+          return `<tr>
+            <td style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--green-900)">${d.id}</td>
+            <td style="color:var(--gray-500)">${typeLabel}</td>
+            <td>
+              <span style="display:inline-flex;align-items:center;gap:6px">
+                <span class="online-dot ${dotClass(status)}"></span>
+                <span style="font-size:13px">${status.label}</span>
+              </span>
             </td>
-            <td style="color:var(--gray-500)">${d.type === 'sensor' ? '📡 Sensor' : '📷 Câmera'}</td>
+            <td style="font-size:13px;color:var(--gray-500)">${status.ago || '—'}</td>
             <td style="color:var(--gray-500)">${groupName(d.group_id)}</td>
             <td>
-              <button class="btn btn-secondary" style="font-size:12px;padding:5px 10px;margin-right:6px"
+              <button class="btn btn-secondary" style="font-size:12px;padding:5px 10px"
                 onclick="openDeviceConfig('${d.id}','${d.type}')">⚙️ Configurar</button>
-              <button class="btn btn-danger" style="font-size:12px;padding:5px 10px"
-                onclick="deleteDevice('${d.id}','${d.type}')">Excluir</button>
             </td>
-          </tr>`).join('')}
+          </tr>`;
+        }).join('')}
       </tbody>
     </table>`;
 }
@@ -1827,18 +2055,16 @@ async function applyPrice() {
 }
 
 // ─────────────────────────────────────────────
-// MODAL: MANUAL PRICE  ← NEW
+// MODAL: MANUAL PRICE
 // ─────────────────────────────────────────────
 function openManualPrice(groupId) {
   const g = state.groups.find(g => g.group_id === groupId);
   if (!g) return;
-  document.getElementById('manual-price-group-id').value    = groupId;
-  document.getElementById('manual-price-group-name').textContent = g.group_name;
-  // Pre-fill with current display price if available
-  document.getElementById('manual-price-input').value =
+  document.getElementById('manual-price-group-id').value           = groupId;
+  document.getElementById('manual-price-group-name').textContent   = g.group_name;
+  document.getElementById('manual-price-input').value              =
     g.display_price != null ? g.display_price.toFixed(2) : '';
   openModal('modal-manual-price');
-  // Focus the input after modal opens
   setTimeout(() => document.getElementById('manual-price-input').focus(), 50);
 }
 
@@ -1858,9 +2084,7 @@ async function applyManualPrice() {
 
   setLoading(btn, true, 'Aplicando...');
   try {
-    // Update display_price in DB
     await sb.update('groups', { display_price: price }, `group_id=eq.${groupId}`);
-    // Send to LCD via MQTT
     if (g.sensor_device_id) {
       await sendMqttCommand(g.sensor_device_id, { price });
     }
@@ -1875,41 +2099,98 @@ async function applyManualPrice() {
 }
 
 // ─────────────────────────────────────────────
-// MODAL: DEVICE CONFIG
+// MODAL: DEVICE CONFIG (per-setting inline send)
 // ─────────────────────────────────────────────
 function openDeviceConfig(deviceId, type) {
-  document.getElementById('device-config-id').value          = deviceId;
-  document.getElementById('device-config-type').value        = type;
-  document.getElementById('device-config-name').textContent  = deviceId;
-  document.getElementById('device-sampling-input').value     = type === 'cam' ? 30000 : 2000;
-  document.getElementById('sensor-extra-config').style.display = type === 'sensor' ? 'block' : 'none';
+  const device = type === 'sensor'
+    ? state.sensorDevices.find(d => d.sensor_device_id === deviceId)
+    : state.camDevices.find(d => d.cam_device_id === deviceId);
+
+  const status          = getDeviceStatus(deviceId, device?.sampling_interval);
+  const currentInterval = device?.sampling_interval || (type === 'cam' ? 30000 : 2000);
+
+  document.getElementById('device-config-id').value           = deviceId;
+  document.getElementById('device-config-type').value         = type;
+  document.getElementById('device-config-name').textContent   = deviceId;
+  document.getElementById('device-config-status').textContent = status.ago ? `· ${status.ago}` : '';
+  document.getElementById('device-config-dot').className      = `online-dot ${dotClass(status)}`;
+
+  // Build per-setting rows
+  let html = `
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">Intervalo de captura</div>
+        <div class="setting-sub">Atual: ${currentInterval} ms · Mínimo recomendado: 10 000 ms</div>
+      </div>
+      <div class="setting-control">
+        <input class="setting-input" type="number" id="setting-interval"
+               value="${currentInterval}" min="5000" step="1000">
+        <button class="send-btn"
+          onclick="sendSetting('${deviceId}','${type}','samplingInterval',parseInt(document.getElementById('setting-interval').value))">
+          Enviar
+        </button>
+      </div>
+    </div>`;
+
+  if (type === 'sensor') {
+    html += `
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">Mostrar dados no LCD</div>
+        <div class="setting-sub">Exibe temperatura e umidade na segunda linha</div>
+      </div>
+      <div class="setting-control">
+        <select class="setting-select" id="setting-showdata">
+          <option value="true">Sim</option>
+          <option value="false">Não</option>
+        </select>
+        <button class="send-btn"
+          onclick="sendSetting('${deviceId}','${type}','showsensordata',document.getElementById('setting-showdata').value==='true')">
+          Enviar
+        </button>
+      </div>
+    </div>
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">LED de alerta</div>
+        <div class="setting-sub">Ligar ou desligar manualmente</div>
+      </div>
+      <div class="setting-control">
+        <select class="setting-select" id="setting-flag">
+          <option value="false">Desligado</option>
+          <option value="true">Ligado</option>
+        </select>
+        <button class="send-btn"
+          onclick="sendSetting('${deviceId}','${type}','flag',document.getElementById('setting-flag').value==='true')">
+          Enviar
+        </button>
+      </div>
+    </div>`;
+  }
+
+  document.getElementById('device-settings-list').innerHTML = html;
   openModal('modal-device');
 }
 
-async function saveDeviceConfig() {
-  const deviceId = document.getElementById('device-config-id').value;
-  const type     = document.getElementById('device-config-type').value;
-  const interval = parseInt(document.getElementById('device-sampling-input').value);
-  const showData = document.getElementById('device-showdata-input').value === 'true';
-  const btn      = document.getElementById('btn-save-device');
-
-  if (!interval || interval < 1000) {
-    showToast('Intervalo inválido. Mínimo: 1000 ms.', 'error');
-    return;
-  }
-
-  const cmd = { samplingInterval: interval };
-  if (type === 'sensor') cmd.showsensordata = showData;
-
-  setLoading(btn, true, 'Enviando...');
+async function sendSetting(deviceId, type, key, value) {
   try {
-    await sendMqttCommand(deviceId, cmd);
-    closeModal('modal-device');
-    showToast('Comando enviado ao dispositivo.');
+    await sendMqttCommand(deviceId, { [key]: value });
+
+    // Persist samplingInterval back to DB
+    if (key === 'samplingInterval') {
+      if (type === 'sensor')
+        await sb.update('sensor_devices', { sampling_interval: value }, `sensor_device_id=eq.${deviceId}`);
+      else
+        await sb.update('cam_devices',    { sampling_interval: value }, `cam_device_id=eq.${deviceId}`);
+      await loadDevices();
+      // Refresh the "Atual:" sub-label inside the open modal
+      const subEl = document.querySelector('#device-settings-list .setting-row:first-child .setting-sub');
+      if (subEl) subEl.textContent = `Atual: ${value} ms · Mínimo recomendado: 10 000 ms`;
+    }
+
+    showToast(`Comando "${key}" enviado.`);
   } catch(e) {
-    showToast('Erro ao enviar comando: ' + e.message, 'error');
-  } finally {
-    setLoading(btn, false, 'Enviar comando');
+    showToast('Erro ao enviar: ' + e.message, 'error');
   }
 }
 
@@ -1933,44 +2214,19 @@ async function registerDevice() {
   }
   if (!state.store) { showToast('Nenhuma loja encontrada.', 'error'); return; }
 
-  // Check if already registered under this store
-  const alreadyRegistered = [...state.sensorDevices, ...state.camDevices].some(d =>
-    (d.sensor_device_id || d.cam_device_id) === id
-  );
-  if (alreadyRegistered) {
-    showToast('Este dispositivo já está registrado nesta loja.', 'error');
-    return;
-  }
-
-  setLoading(btn, true, 'Verificando...');
+  setLoading(btn, true, 'Registrando...');
   try {
-    // Verify the device exists in the DB (i.e. it has connected at least once
-    // and the pipeline created a row for it), but is not yet assigned to any store.
-    let existing;
     if (type === 'sensor') {
-      const rows = await sb.select('sensor_devices', 'sensor_device_id,store_id', `sensor_device_id=eq.${id}`);
-      existing = rows?.[0] ?? null;
+      await sb.upsert('sensor_devices',
+        { sensor_device_id: id, store_id: state.store.store_id, led_flag: false },
+        'sensor_device_id'
+      );
     } else {
-      const rows = await sb.select('cam_devices', 'cam_device_id,store_id', `cam_device_id=eq.${id}`);
-      existing = rows?.[0] ?? null;
+      await sb.upsert('cam_devices',
+        { cam_device_id: id, store_id: state.store.store_id },
+        'cam_device_id'
+      );
     }
-
-    if (!existing) {
-      showToast('Dispositivo não encontrado. Certifique-se de que ele se conectou ao menos uma vez.', 'error');
-      return;
-    }
-    if (existing.store_id && existing.store_id !== state.store.store_id) {
-      showToast('Este dispositivo já está vinculado a outra loja.', 'error');
-      return;
-    }
-
-    // Assign it to this store
-    if (type === 'sensor') {
-      await sb.update('sensor_devices', { store_id: state.store.store_id }, `sensor_device_id=eq.${id}`);
-    } else {
-      await sb.update('cam_devices', { store_id: state.store.store_id }, `cam_device_id=eq.${id}`);
-    }
-
     closeModal('modal-register-device');
     showToast('Dispositivo registrado com sucesso.');
     await refreshAll();
@@ -1978,28 +2234,6 @@ async function registerDevice() {
     showToast('Erro ao registrar: ' + e.message, 'error');
   } finally {
     setLoading(btn, false, 'Registrar');
-  }
-}
-
-async function deleteDevice(deviceId, type) {
-  if (!confirm(`Remover dispositivo ${deviceId}? Ele será desvinculado da loja e de qualquer mesa.`)) return;
-  try {
-    if (type === 'sensor') {
-      // Detach from any group first, then clear store assignment
-      await sb.update('sensor_devices',
-        { store_id: null, group_id: null },
-        `sensor_device_id=eq.${deviceId}`
-      );
-    } else {
-      await sb.update('cam_devices',
-        { store_id: null, group_id: null },
-        `cam_device_id=eq.${deviceId}`
-      );
-    }
-    showToast('Dispositivo removido da loja.');
-    await refreshAll();
-  } catch(e) {
-    showToast('Erro ao remover dispositivo: ' + e.message, 'error');
   }
 }
 
@@ -2030,13 +2264,13 @@ async function saveStoreName() {
 }
 
 // ─────────────────────────────────────────────
-// MQTT COMMAND (via mqtt_pipeline /command)
+// MQTT COMMAND
 // ─────────────────────────────────────────────
 async function sendMqttCommand(deviceId, payload) {
   const res = await fetch(COMMAND_ENDPOINT, {
-    method: 'POST',
+    method:  'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ device_id: deviceId, payload }),
+    body:    JSON.stringify({ device_id: deviceId, payload }),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
