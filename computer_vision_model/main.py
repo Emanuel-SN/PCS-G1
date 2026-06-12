@@ -99,6 +99,8 @@ def run_inference(image: Image.Image) -> dict:
         timeout=60,  # generous timeout to handle cold starts
     )
 
+    log.info(f"HF response: {response.status_code} {response.text}")
+
     # If the model is loading (cold start), HF returns 503 with an
     # estimated_time field. We wait and retry once.
     if response.status_code == 503:
