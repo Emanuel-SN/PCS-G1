@@ -18,9 +18,11 @@
 #define D7 25
 #define RLED 32
 
-// NTP settings
+// NTP settings — sync to real UTC (offset 0) so timestamps stored with "Z"
+// suffix are genuinely UTC and the dashboard can compare them to Date.now()
+// without any correction.
 const char* ntpServer          = "pool.ntp.org";
-const long  gmtOffset_sec      = -3 * 3600;
+const long  gmtOffset_sec      = 0;       // UTC — no local offset
 const int   daylightOffset_sec = 0;
 
 unsigned long lastPublish      = 0;
@@ -140,6 +142,8 @@ void connectToWiFi() {
   delay(1000);
 }
 
+// Returns a genuine UTC timestamp string ending in "Z".
+// Because gmtOffset_sec = 0, getLocalTime() returns UTC directly.
 String getTimestamp() {
   struct tm timeinfo;
   if (!getLocalTime(&timeinfo)) return "no-time";
@@ -201,7 +205,7 @@ void reconnectIfNeeded() {
       Serial.println("\nWiFi reconnect failed, will retry next loop");
       lcdStatus("WiFi failed", "Retrying...");
       delay(3000);
-      return;  // bail out, try again next loop iteration
+      return;
     }
 
     Serial.println("\nWiFi reconnected");
@@ -209,7 +213,7 @@ void reconnectIfNeeded() {
 
   // Step 2: fix MQTT if WiFi is up but MQTT dropped
   if (!mqtt_client.connected()) {
-    connectToMQTT();  // single attempt; loop() will retry if it fails
+    connectToMQTT();
   }
 }
 
@@ -253,7 +257,7 @@ void mqttCallback(char *topic, byte *payload, unsigned int length) {
 void loop() {
   if (WiFi.status() != WL_CONNECTED || !mqtt_client.connected()) {
     reconnectIfNeeded();
-    return;  // skip publishing this cycle, retry next iteration
+    return;
   }
 
   mqtt_client.loop();

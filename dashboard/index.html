@@ -1885,9 +1885,11 @@ function renderDevices() {
             </td>
             <td style="font-size:13px;color:var(--gray-500)">${status.ago || '—'}</td>
             <td style="color:var(--gray-500)">${groupName(d.group_id)}</td>
-            <td>
+            <td style="display:flex;gap:6px;justify-content:flex-end">
               <button class="btn btn-secondary" style="font-size:12px;padding:5px 10px"
                 onclick="openDeviceConfig('${d.id}','${d.type}')">⚙️ Configurar</button>
+              <button class="btn btn-danger" style="font-size:12px;padding:5px 10px"
+                onclick="deleteDevice('${d.id}','${d.type}')">Excluir</button>
             </td>
           </tr>`;
         }).join('')}
@@ -2013,6 +2015,21 @@ async function deleteGroup(groupId) {
     await Promise.all(promises);
     await sb.delete('groups', `group_id=eq.${groupId}`);
     showToast('Mesa excluída.');
+    await refreshAll();
+  } catch(e) {
+    showToast('Erro ao excluir: ' + e.message, 'error');
+  }
+}
+
+async function deleteDevice(deviceId, type) {
+  if (!confirm(`Excluir o dispositivo ${deviceId}? Ele poderá ser registrado novamente a qualquer momento.`)) return;
+  try {
+    if (type === 'sensor') {
+      await sb.delete('sensor_devices', `sensor_device_id=eq.${deviceId}`);
+    } else {
+      await sb.delete('cam_devices', `cam_device_id=eq.${deviceId}`);
+    }
+    showToast('Dispositivo excluído.');
     await refreshAll();
   } catch(e) {
     showToast('Erro ao excluir: ' + e.message, 'error');

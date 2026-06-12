@@ -25,9 +25,11 @@
 #define HREF_GPIO_NUM     23
 #define PCLK_GPIO_NUM     22
 
-// NTP settings
+// NTP settings — sync to real UTC (offset 0) so timestamps stored with "Z"
+// suffix are genuinely UTC and the dashboard can compare them to Date.now()
+// without any correction.
 const char* ntpServer          = "pool.ntp.org";
-const long  gmtOffset_sec      = -3 * 3600;
+const long  gmtOffset_sec      = 0;       // UTC — no local offset
 const int   daylightOffset_sec = 0;
 
 unsigned long lastCapture      = 0;
@@ -100,7 +102,6 @@ void setup() {
   config.jpeg_quality = 10;
   config.fb_count     = 1;
   config.fb_location  = CAMERA_FB_IN_PSRAM;
-  
 
   esp_err_t err = esp_camera_init(&config);
   if (err != ESP_OK) {
@@ -145,6 +146,8 @@ void connectToWiFi() {
   Serial.println("\nTime synced!");
 }
 
+// Returns a genuine UTC timestamp string ending in "Z".
+// Because gmtOffset_sec = 0, getLocalTime() returns UTC directly.
 String getTimestamp() {
   struct tm timeinfo;
   if (!getLocalTime(&timeinfo)) return "no-time";
@@ -289,7 +292,7 @@ void loop() {
   mqtt_client.loop();
 
   if (millis() - lastCapture >= samplingInterval) {
-    captureAndUpload();          // only returns after successful upload
-    lastCapture = millis();      // start interval AFTER success
+    captureAndUpload();
+    lastCapture = millis();
   }
 }
