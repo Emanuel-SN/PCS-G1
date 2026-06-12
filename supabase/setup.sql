@@ -62,6 +62,9 @@ CREATE TABLE groups (
 ALTER TABLE sensor_devices ADD COLUMN group_id UUID REFERENCES groups(group_id) ON DELETE SET NULL;
 ALTER TABLE cam_devices     ADD COLUMN group_id UUID REFERENCES groups(group_id) ON DELETE SET NULL;
 
+ALTER TABLE sensor_devices ADD COLUMN IF NOT EXISTS sampling_interval BIGINT;
+ALTER TABLE cam_devices     ADD COLUMN IF NOT EXISTS sampling_interval BIGINT;
+
 -- Sensor readings
 CREATE TABLE sensor_readings (
   reading_id       UUID PRIMARY KEY DEFAULT gen_random_uuid(),
