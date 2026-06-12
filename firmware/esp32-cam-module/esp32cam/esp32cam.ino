@@ -29,7 +29,7 @@
 // suffix are genuinely UTC and the dashboard can compare them to Date.now()
 // without any correction.
 const char* ntpServer          = "pool.ntp.org";
-const long  gmtOffset_sec      = 0;       // UTC — no local offset
+const long  gmtOffset_sec      = 0;
 const int   daylightOffset_sec = 0;
 
 unsigned long lastCapture      = 0;
@@ -45,7 +45,8 @@ Preferences      prefs;
 
 // ---------- declarations ----------
 void connectToWiFi();
-void connectToMQTT();
+bool connectToMQTT();
+void reconnectIfNeeded();
 void mqttCallback(char *topic, byte *payload, unsigned int length);
 String getTimestamp();
 String getFilenameTimestamp();
@@ -56,14 +57,14 @@ void saveConfig();
 
 // ----------------------------------
 void loadConfig() {
-  prefs.begin("config", true);  // read-only
+  prefs.begin("config", true);
   samplingInterval = prefs.getULong("samplingInterval", 30000);
   prefs.end();
   Serial.println("Config loaded from NVS");
 }
 
 void saveConfig() {
-  prefs.begin("config", false);  // read-write
+  prefs.begin("config", false);
   prefs.putULong("samplingInterval", samplingInterval);
   prefs.end();
   Serial.println("Config saved to NVS");
@@ -112,6 +113,9 @@ void setup() {
 
   connectToWiFi();
 
+  // Configure TLS and MQTT — done once at boot only.
+  // esp_client is re-stopped/restarted on each MQTT reconnect in
+  // reconnectIfNeeded(), but setInsecure/setServer only need to run once.
   esp_client.setInsecure();
   http_client.setInsecure();
   mqtt_client.setBufferSize(512);
@@ -123,6 +127,11 @@ void setup() {
   Serial.println("Boot complete");
 }
 
+// ---------------------------------------------------------------------------
+// connectToWiFi — called once at boot only.
+// Sets device_id, base_topic, and syncs NTP (one-time only; RTC keeps time
+// after this so we never need to re-sync on reconnect).
+// ---------------------------------------------------------------------------
 void connectToWiFi() {
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   Serial.print("Connecting to WiFi");
@@ -132,10 +141,11 @@ void connectToWiFi() {
   }
   Serial.println("\nConnected to WiFi: " + WiFi.localIP().toString());
 
-  device_id = WiFi.macAddress();
+  device_id  = WiFi.macAddress();
   device_id.replace(":", "");
   base_topic = "devices/" + device_id + "/";
 
+  // Sync NTP once — the ESP32 RTC keeps time across reconnects.
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
   Serial.print("Syncing NTP time");
   struct tm timeinfo;
@@ -146,8 +156,77 @@ void connectToWiFi() {
   Serial.println("\nTime synced!");
 }
 
-// Returns a genuine UTC timestamp string ending in "Z".
-// Because gmtOffset_sec = 0, getLocalTime() returns UTC directly.
+// ---------------------------------------------------------------------------
+// reconnectIfNeeded — called every loop() iteration.
+//
+// Step 1: if WiFi is down, attempt reconnect with a 15 s timeout and bail
+//         out of this cycle if it doesn't come back. We do NOT touch MQTT
+//         while WiFi is down — that's what caused the broker flooding.
+//
+// Step 2: only once WiFi is confirmed up, attempt a single MQTT reconnect
+//         if needed. We explicitly stop() the TLS socket before each attempt
+//         so the broker never sees a half-open zombie connection.
+// ---------------------------------------------------------------------------
+void reconnectIfNeeded() {
+  // ── Step 1: WiFi ──────────────────────────────────────────────────────────
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.println("WiFi lost, reconnecting...");
+    WiFi.disconnect();
+    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+
+    unsigned long start = millis();
+    while (WiFi.status() != WL_CONNECTED && millis() - start < 15000) {
+      delay(500);
+      Serial.print(".");
+    }
+
+    if (WiFi.status() != WL_CONNECTED) {
+      Serial.println("\nWiFi reconnect failed, will retry next loop");
+      delay(3000);
+      return;   // bail — do NOT attempt MQTT while WiFi is still down
+    }
+
+    Serial.println("\nWiFi reconnected");
+  }
+
+  // ── Step 2: MQTT (WiFi is confirmed up at this point) ────────────────────
+  if (!mqtt_client.connected()) {
+    connectToMQTT();
+  }
+}
+
+// ---------------------------------------------------------------------------
+// connectToMQTT — single attempt per call (no inner while loop).
+// Always stop()s the TLS socket first to close any zombie session on the
+// broker side before opening a fresh one.
+// ---------------------------------------------------------------------------
+bool connectToMQTT() {
+  // Tear down any leftover TLS session before opening a new one.
+  // Without this the broker accumulates half-open connections.
+  esp_client.stop();
+  delay(100);
+
+  String client_id = "esp32cam-" + device_id;
+  Serial.printf("Connecting to MQTT as %s...\n", client_id.c_str());
+
+  if (mqtt_client.connect(client_id.c_str(), MQTT_USERNAME, MQTT_PASSWORD)) {
+    Serial.println("Connected to MQTT broker");
+    mqtt_client.subscribe((base_topic + "commands").c_str());
+    mqtt_client.subscribe("general");
+
+    String msg = "<<<<<<<<< ESP32-CAM (" + device_id + ") ONLINE >>>>>>>>";
+    mqtt_client.publish("general", msg.c_str());
+    return true;
+  }
+
+  Serial.printf("MQTT failed, rc=%d — will retry next loop\n", mqtt_client.state());
+  delay(5000);   // back off before the next loop() iteration tries again
+  return false;
+}
+
+// ---------------------------------------------------------------------------
+// Timestamp helpers
+// ---------------------------------------------------------------------------
 String getTimestamp() {
   struct tm timeinfo;
   if (!getLocalTime(&timeinfo)) return "no-time";
@@ -164,26 +243,9 @@ String getFilenameTimestamp() {
   return String(buf);
 }
 
-void connectToMQTT() {
-  while (!mqtt_client.connected()) {
-    String client_id = "esp32cam-" + device_id;
-    Serial.printf("Connecting to MQTT as %s...\n", client_id.c_str());
-    if (mqtt_client.connect(client_id.c_str(), MQTT_USERNAME, MQTT_PASSWORD)) {
-      Serial.println("Connected to MQTT broker");
-      mqtt_client.subscribe((base_topic + "commands").c_str());
-      mqtt_client.subscribe("general");
-
-      String msg = "<<<<<<<<< ESP32-CAM (" + device_id + ") ONLINE >>>>>>>>";
-      mqtt_client.publish("general", msg.c_str());
-    } else {
-      Serial.print("MQTT failed, rc=");
-      Serial.print(mqtt_client.state());
-      Serial.println(" retrying in 5s...");
-      delay(5000);
-    }
-  }
-}
-
+// ---------------------------------------------------------------------------
+// MQTT callback
+// ---------------------------------------------------------------------------
 void mqttCallback(char *topic, byte *payload, unsigned int length) {
   Serial.print("Message received on topic: ");
   Serial.println(topic);
@@ -209,6 +271,9 @@ void mqttCallback(char *topic, byte *payload, unsigned int length) {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Supabase image upload
+// ---------------------------------------------------------------------------
 bool uploadToSupabase(uint8_t *buf, size_t len, String storagePath) {
   http_client.stop();
 
@@ -245,11 +310,24 @@ bool uploadToSupabase(uint8_t *buf, size_t len, String storagePath) {
   return response.indexOf("200") > 0 || response.indexOf("201") > 0;
 }
 
+// ---------------------------------------------------------------------------
+// captureAndUpload — retries until success, but yields to reconnectIfNeeded
+// between attempts so WiFi/MQTT issues are handled cleanly.
+// ---------------------------------------------------------------------------
 void captureAndUpload() {
   Serial.printf("Free heap: %d bytes\n", ESP.getFreeHeap());
 
   bool ok = false;
   while (!ok) {
+    // Keep connections healthy during retry loop
+    reconnectIfNeeded();
+    if (!mqtt_client.connected()) {
+      // No point uploading if we can't publish the result — wait and retry
+      delay(5000);
+      continue;
+    }
+    mqtt_client.loop();
+
     camera_fb_t *fb = esp_camera_fb_get();
     if (!fb) {
       Serial.println("Camera capture failed, retrying in 5s...");
@@ -266,8 +344,6 @@ void captureAndUpload() {
 
     if (!ok) {
       Serial.println("Upload failed, retrying in 5s...");
-      if (!mqtt_client.connected()) connectToMQTT();
-      mqtt_client.loop();
       delay(5000);
       continue;
     }
@@ -285,10 +361,17 @@ void captureAndUpload() {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Main loop
+// ---------------------------------------------------------------------------
 void loop() {
+  reconnectIfNeeded();
+
   if (!mqtt_client.connected()) {
-    connectToMQTT();
+    // reconnectIfNeeded already attempted — skip this cycle
+    return;
   }
+
   mqtt_client.loop();
 
   if (millis() - lastCapture >= samplingInterval) {
