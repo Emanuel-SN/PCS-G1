@@ -3,6 +3,7 @@ import logging
 import signal
 import sys
 import threading
+import time
 from io import BytesIO
 
 import paho.mqtt.client as mqtt
@@ -73,15 +74,19 @@ def compute_freshness(scores: dict) -> float:
 def download_image(storage_bucket: str, storage_path: str) -> Image.Image:
     url = f"{SUPABASE_URL}/storage/v1/object/public/{storage_bucket}/{storage_path}"
     log.info(f"Downloading image from {url}")
+    t = time.time()                                          
     response = requests.get(url, timeout=15)
+    log.info(f"Download took {time.time()-t:.1f}s")         
     response.raise_for_status()
     return Image.open(BytesIO(response.content)).convert("RGB")
 
 
 def run_inference(image: Image.Image) -> dict:
+    t = time.time()
     inputs = processor(images=image, return_tensors="pt")
     with torch.no_grad():
         logits = model(**inputs).logits
+    log.info(f"Inference took {time.time()-t:.1f}s")
     probs = torch.softmax(logits, dim=-1)[0]
 
     id2label = model.config.id2label
