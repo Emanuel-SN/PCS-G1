@@ -3,8 +3,6 @@ import logging
 import signal
 import sys
 import threading
-import time
-from concurrent.futures import ThreadPoolExecutor
 from io import BytesIO
 
 import paho.mqtt.client as mqtt
@@ -12,7 +10,9 @@ import requests
 from supabase import create_client, Client
 from dotenv import load_dotenv
 from flask import Flask
+from transformers import AutoImageProcessor, AutoModelForImageClassification
 from PIL import Image
+import torch
 import os
 
 # ----------------------------------------------------------------
@@ -32,11 +32,17 @@ MQTT_PASSWORD = os.getenv("MQTT_PASSWORD")
 SUPABASE_URL  = os.getenv("SUPABASE_URL")
 SUPABASE_KEY  = os.getenv("SUPABASE_KEY")
 
-HF_API_TOKEN  = os.getenv("HF_API_TOKEN")
-HF_API_URL    = "https://router.huggingface.co/hf-inference/models/TCleo/banana-maturity-mobile-vit-small"
+MODEL_ID = "TCleo/banana-maturity-mobile-vit-small"
 
 # ----------------------------------------------------------------
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+# ----------------------------------------------------------------
+log.info(f"Loading model {MODEL_ID}...")
+processor = AutoImageProcessor.from_pretrained(MODEL_ID)
+model     = AutoModelForImageClassification.from_pretrained(MODEL_ID)
+model.eval()
+log.info("Model loaded")
 
 LABEL_UNRIPE   = "underripe"
 LABEL_RIPE     = "ripe"
@@ -47,10 +53,6 @@ FRESHNESS_WEIGHTS = {
     LABEL_RIPE:     1.0,
     LABEL_OVERRIPE: 0.1,
 }
-
-# Thread pool — keeps MQTT loop thread free for keepalive pings.
-# max_workers=1 processes images in order; raise if you need parallelism.
-executor = ThreadPoolExecutor(max_workers=1)
 
 # ----------------------------------------------------------------
 app = Flask(__name__)
@@ -71,65 +73,24 @@ def compute_freshness(scores: dict) -> float:
 def download_image(storage_bucket: str, storage_path: str) -> Image.Image:
     url = f"{SUPABASE_URL}/storage/v1/object/public/{storage_bucket}/{storage_path}"
     log.info(f"Downloading image from {url}")
-    t = time.time()
     response = requests.get(url, timeout=15)
     response.raise_for_status()
-    log.info(f"Download took {time.time()-t:.1f}s")
     return Image.open(BytesIO(response.content)).convert("RGB")
 
 
 def run_inference(image: Image.Image) -> dict:
-    """
-    Sends the image to the Hugging Face Inference API and returns
-    a dict of {label: score}. Runs on HF's GPU-accelerated servers
-    instead of local CPU — typically 2-5s vs 80s locally.
+    inputs = processor(images=image, return_tensors="pt")
+    with torch.no_grad():
+        logits = model(**inputs).logits
+    probs = torch.softmax(logits, dim=-1)[0]
 
-    On the free tier the model may have a cold start (~20s) if it
-    hasn't been called recently. Set HF_API_TOKEN to a paid account
-    to keep it warm, or accept the occasional cold start.
-    """
-    buffer = BytesIO()
-    image.save(buffer, format="JPEG")
-
-    t = time.time()
-    response = requests.post(
-        HF_API_URL,
-        headers={"Authorization": f"Bearer {HF_API_TOKEN}"},
-        data=buffer.getvalue(),
-        timeout=60,  # generous timeout to handle cold starts
-    )
-
-    log.info(f"HF response: {response.status_code} {response.text}")
-
-    # If the model is loading (cold start), HF returns 503 with an
-    # estimated_time field. We wait and retry once.
-    if response.status_code == 503:
-        body = response.json()
-        wait  = min(float(body.get("estimated_time", 20)), 30)
-        log.info(f"Model loading on HF, waiting {wait:.0f}s...")
-        time.sleep(wait)
-        response = requests.post(
-            HF_API_URL,
-            headers={"Authorization": f"Bearer {HF_API_TOKEN}"},
-            data=buffer.getvalue(),
-            timeout=60,
-        )
-
-    response.raise_for_status()
-
-    # HF returns: [{"label": "ripe", "score": 0.93}, ...]
-    results = response.json()
-    log.info(f"Inference took {time.time()-t:.1f}s")
-    scores = {item["label"].lower(): item["score"] for item in results}
+    id2label = model.config.id2label
+    scores = {id2label[i].lower(): float(probs[i]) for i in range(len(probs))}
     log.info(f"Inference scores: {scores}")
     return scores
 
 
 def handle_captured_image(payload: dict):
-    """
-    Runs in a thread-pool worker, NOT on the MQTT thread, so the
-    MQTT loop stays free to send keepalive pings.
-    """
     cam_device_id  = payload.get("device_id")
     storage_bucket = payload.get("storage_bucket")
     storage_path   = payload.get("storage_path")
@@ -153,6 +114,7 @@ def handle_captured_image(payload: dict):
 
     freshness = compute_freshness(scores)
 
+    # Insert into cv_analysis
     supabase.table("cv_analysis").insert({
         "cam_device_id":  cam_device_id,
         "group_id":       group_id,
@@ -166,6 +128,7 @@ def handle_captured_image(payload: dict):
         "captured_at":    captured_at,
     }).execute()
 
+    # Update latest_freshness on group
     if group_id:
         supabase.table("groups").update({
             "latest_freshness": freshness,
@@ -173,6 +136,7 @@ def handle_captured_image(payload: dict):
         log.info(f"Updated latest_freshness to {freshness:.3f} for group {group_id}")
 
     log.info(f"CV analysis inserted — freshness: {freshness:.3f} for group {group_id}")
+    # TODO: dispatch price optimization job via Procrastinate once queue is ready
 
 
 # ----------------------------------------------------------------
@@ -201,8 +165,7 @@ def on_message(client, userdata, msg):
     if len(parts) != 3 or parts[2] != "captured_images":
         return
 
-    # Submit to thread pool immediately — do NOT block the MQTT thread
-    executor.submit(handle_captured_image, payload)
+    handle_captured_image(payload)
 
 
 # ----------------------------------------------------------------
@@ -222,7 +185,6 @@ def main():
 
     def shutdown(sig, frame):
         log.info("Shutting down...")
-        executor.shutdown(wait=False)
         client.disconnect()
         sys.exit(0)
 
