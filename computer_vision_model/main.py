@@ -33,7 +33,7 @@ SUPABASE_URL  = os.getenv("SUPABASE_URL")
 SUPABASE_KEY  = os.getenv("SUPABASE_KEY")
 
 HF_API_TOKEN  = os.getenv("HF_API_TOKEN")
-HF_API_URL    = "https://api-inference.huggingface.co/models/TCleo/banana-maturity-mobile-vit-small"
+HF_API_URL    = "https://router.huggingface.co/hf-inference/models/TCleo/banana-maturity-mobile-vit-small"
 
 # ----------------------------------------------------------------
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
